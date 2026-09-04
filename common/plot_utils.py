@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 
-def save_plot(fig, save_dir, filename):
+def save_plot(fig, save_dir, filename, close=False):
     """
     Saves a matplotlib figure to the specified directory.
     Creates the directory if it does not exist.
@@ -9,7 +9,8 @@ def save_plot(fig, save_dir, filename):
     os.makedirs(save_dir, exist_ok=True)
     filepath = os.path.join(save_dir, filename)
     fig.savefig(filepath, bbox_inches='tight')
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     print(f"Plot saved to: {filepath}")
 
 def setup_style():

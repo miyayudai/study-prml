@@ -27,7 +27,7 @@ AIエージェントはこのファイルを読み込み、以下の「AIエー�
 
 - [x] 第0章 確率・確率密度の基礎補講 (Foundations of Probability)
 - [x] 第1章 序論 (Introduction)
-- [ ] 第2章 確率分布 (Probability Distributions)
+- [x] 第2章 確率分布 (Probability Distributions)
 - [ ] 第3章 線形回帰モデル (Linear Models for Regression)
 - [ ] 第4章 線形識別モデル (Linear Models for Classification)
 - [ ] 第5章 ニューラルネットワーク (Neural Networks)
