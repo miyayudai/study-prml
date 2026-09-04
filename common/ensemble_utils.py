@@ -179,3 +179,14 @@ class MixtureOfLinearRegressions:
                 density[:, i] += self.pi_[k] * comp_pdf
                 
         return density
+
+    def predict(self, X):
+        """期待値予測 y(x) = sum_k pi_k * (w_k^T phi(x))"""
+        X = np.atleast_2d(X)
+        N, D = X.shape
+        Phi = np.column_stack([np.ones(N), X])
+        y_pred = np.zeros(N)
+        for k in range(self.n_components):
+            y_pred += self.pi_[k] * (Phi @ self.weights_[k])
+        return y_pred
+

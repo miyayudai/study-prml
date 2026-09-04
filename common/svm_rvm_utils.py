@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.optimize as opt
-from common.kernel_utils import rbf_kernel
+from common.kernel_utils import rbf_kernel, resolve_kernel
 from common.classification_utils import sigmoid
 
 class SupportVectorClassifier:
@@ -8,9 +8,10 @@ class SupportVectorClassifier:
     サポートベクトルマシン分類器 (Support Vector Classifier: SVC, PRML 7.1節)
     双対二次計画法による厳密解法
     """
-    def __init__(self, C=1.0, kernel=rbf_kernel, **kernel_kwargs):
+    def __init__(self, C=1.0, kernel='rbf', **kernel_kwargs):
         self.C = C
-        self.kernel = kernel
+        self.kernel = resolve_kernel(kernel)
+
         self.kernel_kwargs = kernel_kwargs
         self.X_train = None
         self.t_train = None
@@ -91,8 +92,9 @@ class RelevanceVectorRegressor:
     関連ベクトルマシン回帰 (Relevance Vector Machine for Regression: RVM, PRML 7.2.1節)
     エビデンスフレームワークによる超パラメータ alpha_i の自動剪定 (Sparsity)
     """
-    def __init__(self, kernel=rbf_kernel, alpha_threshold=1e4, max_iter=500, tol=1e-4, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='rbf', alpha_threshold=1e4, max_iter=500, tol=1e-4, **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
+
         self.alpha_threshold = alpha_threshold
         self.max_iter = max_iter
         self.tol = tol
@@ -189,8 +191,9 @@ class RelevanceVectorClassifier:
     関連ベクトルマシン分類器 (Relevance Vector Machine for Classification, PRML 7.2.3節)
     ラプラス近似 + 超パラメータ alpha_i の自動推定
     """
-    def __init__(self, kernel=rbf_kernel, alpha_threshold=1e4, max_iter=100, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='rbf', alpha_threshold=1e4, max_iter=100, **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
+
         self.alpha_threshold = alpha_threshold
         self.max_iter = max_iter
         self.kernel_kwargs = kernel_kwargs

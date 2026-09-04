@@ -3,15 +3,23 @@ import scipy.spatial.distance as sp_dist
 import scipy.optimize as opt
 from common.classification_utils import sigmoid
 
-def rbf_kernel(X1, X2, length_scale=1.0, variance=1.0):
+def rbf_kernel(X1, X2, length_scale=1.0, variance=1.0, gamma=None, h=None):
     """
     動径基底関数 (RBF / ガウス) カーネル
     k(x, x') = variance * exp(- 0.5 * ||x - x'||^2 / length_scale^2)
+    gamma: exp(- gamma * ||x - x'||^2)
+    h: バンド幅パラメータ (h = length_scale)
     """
+    if h is not None:
+        length_scale = h
+    elif gamma is not None:
+        length_scale = 1.0 / np.sqrt(2.0 * gamma)
+
     X1 = np.atleast_2d(X1)
     X2 = np.atleast_2d(X2)
     dists_sq = sp_dist.cdist(X1, X2, metric='sqeuclidean')
     return variance * np.exp(-0.5 * dists_sq / (length_scale**2))
+
 
 def ard_kernel(X1, X2, theta0, etas):
     """
@@ -37,18 +45,38 @@ def prml_regression_kernel(X1, X2, theta0=1.0, theta1=4.0, theta2=0.0, theta3=0.
     linear_term = X1 @ X2.T
     return theta0 * np.exp(-0.5 * theta1 * dists_sq) + theta2 + theta3 * linear_term
 
+def linear_kernel(X1, X2):
+
+    """線形カーネル k(x, x') = x^T x'"""
+    return np.atleast_2d(X1) @ np.atleast_2d(X2).T
+
+def resolve_kernel(kernel):
+    """文字列または関数から適切なカーネル関数を解決"""
+    if callable(kernel):
+        return kernel
+    if isinstance(kernel, str):
+        k_str = kernel.lower()
+        if k_str in ('rbf', 'gaussian'):
+            return rbf_kernel
+        elif k_str == 'linear':
+            return linear_kernel
+        elif k_str == 'prml':
+            return prml_regression_kernel
+    raise ValueError(f"Unknown kernel: {kernel}")
+
 class KernelRidgeRegression:
     """
     双対表現に基づく正則化最小二乗法 (Kernel Ridge Regression, PRML 6.1節)
     a = (K + lambda * I)^(-1) * t
     y(x) = k(x)^T a
     """
-    def __init__(self, kernel=rbf_kernel, reg_lambda=1e-3, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='rbf', reg_lambda=1e-3, **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
         self.reg_lambda = reg_lambda
         self.kernel_kwargs = kernel_kwargs
         self.X_train = None
         self.a = None
+
 
     def fit(self, X, t):
         self.X_train = np.atleast_2d(X)
@@ -67,8 +95,8 @@ class NadarayaWatsonRegressor:
     Nadaraya-Watson カーネル回帰モデル (PRML 6.3.1節)
     y(x) = sum_n k(x, x_n) * t_n / sum_m k(x, x_m)
     """
-    def __init__(self, kernel=rbf_kernel, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='rbf', **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
         self.kernel_kwargs = kernel_kwargs
         self.X_train = None
         self.t_train = None
@@ -89,8 +117,9 @@ class GaussianProcessRegressor:
     """
     ガウス過程回帰 (Gaussian Process Regression: GPR, PRML 6.4節)
     """
-    def __init__(self, kernel=prml_regression_kernel, beta=25.0, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='prml', beta=25.0, **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
+
         self.beta = beta # ノイズ精度 (ノイズ分散 sigma_n^2 = 1/beta)
         self.kernel_kwargs = kernel_kwargs
         self.X_train = None
@@ -160,8 +189,8 @@ class GaussianProcessClassifier:
     ガウス過程分類 (Gaussian Process Classification: GPC, PRML 6.4.5-6.4.6節)
     潜在変数 a(x) に対する GP 事前分布 + シグモイド尤度 + ラプラス近似
     """
-    def __init__(self, kernel=rbf_kernel, **kernel_kwargs):
-        self.kernel = kernel
+    def __init__(self, kernel='rbf', **kernel_kwargs):
+        self.kernel = resolve_kernel(kernel)
         self.kernel_kwargs = kernel_kwargs
         self.X_train = None
         self.t_train = None

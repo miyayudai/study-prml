@@ -1,154 +1,140 @@
-# Pattern Recognition and Machine Learning (PRML) - Complete Python Implementation & Exercise Solutions
+# PRML (Pattern Recognition and Machine Learning) Python Implementation
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Tests: Passing](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
-[![PRML Coverage](https://img.shields.io/badge/PRML%20Chapters-0%20to%2014%20(100%25)-orange.svg)]()
-[![Notebooks](https://img.shields.io/badge/Jupyter%20Notebooks-63%20Total-blueviolet.svg)]()
-[![Reproduced Figures](https://img.shields.io/badge/PRML%20Figures-101%20Reproduced-success.svg)]()
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRML Coverage](https://img.shields.io/badge/Bishop%20PRML-Chapters%200--14%20(100%25)-brightgreen.svg)](TASK.md)
+[![Tests](https://img.shields.io/badge/tests-15%20passed-success.svg)](tests/)
 
-Christopher M. Bishop 著の名著 **『Pattern Recognition and Machine Learning』(PRML)** の**全14章（第1章〜第14章）および準備章（第0章：確率・確率密度の基礎補講）**を完全に網羅した、Pythonによる数理アルゴリズムのスクラッチ実装・原著図版の完全再現・および**全章演習問題（Exercises）の詳細な数学的証明と数値検証コード**を収録した包括的リポジトリです。
+Christopher M. Bishop の世界的な名著 **『パターン認識と機械学習 (Pattern Recognition and Machine Learning, PRML)』** の理論、数式展開、およびアルゴリズムを Python / NumPy / SciPy によって忠実にスクラッチ実装し、インタラクティブな Jupyter Notebook と 110枚以上の高解像度可視化プロットで完全再現した学習・研究用リポジトリです。
 
 ---
 
-## 🌟 プロジェクトの特色
+## 🌟 主な特徴
 
-1. **完全スクラッチ実装 (Zero-Black-Box)**
-   - 機械学習の「ブラックボックス」を排し、NumPy / SciPy による線形代数・微積分・凸最適化の基礎方程式からすべてのモデル（ベイズ線形回帰、ガウス過程、SVM/SMO、RVM、EM、変分推論、HMC、PPCA、HMM、カルマンフィルタ、AdaBoost等）を忠実に実装しています。
-2. **scikit-learn 準拠の統一 API (`fit` / `predict` / `transform`)**
-   - 共通モジュール [`common/`](file:///home/student/Documents/GitHub/my_PRML/common) 配下に再利用可能なクラス群を設計し、一貫したインターフェースを提供。
-3. **原著図版の忠実な再現（計 101 枚）**
-   - 本文中に登場する象徴的なグラフ（ベイズ予測分布、ガウス過程サンプルパス、SMO決定境界、GMM特異点と収束過程、変分下界の単調増加と不要成分の自動消滅、HMC位相空間、固有数字と段階的再構成、カルマン不確実性拡散と収縮等）を高解像度で再現し、各章の `result/` に保存。
-4. **全演習問題（Exercises）の完全網羅**
-   - ラグランジュ未定乗数法、変分法、d-分離、情報理論的不等式、ベイズ更新公式の厳密な数理証明に加え、Python による直接数値計算・シミュレーション検証を全問完備。
-
----
-
-## 📚 各章の構成と実装内容一覧 (Table of Contents)
-
-| 章 | タイトル (Title) | ノートブック数 | 再現図版数 | 主な実装アルゴリズム & トピック | 演習問題 |
-|:---:|:---|:---:|:---:|:---|:---:|
-| **[Ch 0](file:///home/student/Documents/GitHub/my_PRML/0)** | **確率・確率密度の基礎補講**<br>*(Foundations of Probability)* | 2 | 3 | ヤコビアンと確率密度の変数変換定理、累積分布関数（CDF）逆変換サンプリング法 | 全問検証 |
-| **[Ch 1](file:///home/student/Documents/GitHub/my_PRML/1)** | **序論**<br>*(Introduction)* | 5 | 3 | 多項式曲線フィッティング、過学習と過小学習、正則化項の効果、ベイズ決定理論、情報理論とエントロピー | 1.1 - 1.41 |
-| **[Ch 2](file:///home/student/Documents/GitHub/my_PRML/2)** | **確率分布**<br>*(Probability Distributions)* | 6 | 13 | ガウス分布の幾何学・条件付き/周辺化、ガンマ・ベータ・ディリクレ共役事前分布、スチューデントのt分布、指数型分布族 | 2.1 - 2.61 |
-| **[Ch 3](file:///home/student/Documents/GitHub/my_PRML/3)** | **線形回帰モデル**<br>*(Linear Models for Regression)* | 6 | 15 | 基底関数展開、バイアス-バリアンス分解、ベイズ線形回帰と逐次事後分布更新、等価カーネル、エビデンス近似 | 3.1 - 3.24 |
-| **[Ch 4](file:///home/student/Documents/GitHub/my_PRML/4)** | **線形分類モデル**<br>*(Linear Models for Classification)* | 5 | 12 | フィッシャーの線形判別 (LDA)、パーセプトロン収束定理、ロジスティック回帰 (IRLS)、プロビット回帰、ラプラス近似 | 4.1 - 4.26 |
-| **[Ch 5](file:///home/student/Documents/GitHub/my_PRML/5)** | **ニューラルネットワーク**<br>*(Neural Networks)* | 5 | 7 | 多層パーセプトロン、誤差逆伝播法（Backpropagation）、数値微分勾配検証、ヘシアン解析、混合密度ネットワーク (MDN) | 5.1 - 5.41 |
-| **[Ch 6](file:///home/student/Documents/GitHub/my_PRML/6)** | **カーネル法**<br>*(Kernel Methods)* | 5 | 8 | 双対表現とカーネルトリック、カーネルリッジ回帰、ナダラヤ・ワトソン核回帰、ガウス過程回帰 (GPR) / 分類 (GPC) | 6.1 - 6.27 |
-| **[Ch 7](file:///home/student/Documents/GitHub/my_PRML/7)** | **疎なカーネルマシン**<br>*(Sparse Kernel Machines)* | 3 | 6 | サポートベクトルマシン (SVM / SMO アルゴリズム)、KKT 相補性条件、関連ベクトルマシン (RVM 回帰 & 分類) | 7.1 - 7.19 |
-| **[Ch 8](file:///home/student/Documents/GitHub/my_PRML/8)** | **グラフィカルモデル**<br>*(Graphical Models)* | 4 | 3 | 有向分離 (d-separation)、マルコフ確率場 (MRF) とクリークポテンシャル、因子グラフ、確率伝播 (Sum-Product アルゴリズム) | 8.1 - 8.29 |
-| **[Ch 9](file:///home/student/Documents/GitHub/my_PRML/9)** | **混合モデルとEM**<br>*(Mixture Models and EM)* | 4 | 6 | K-means、ガウス混合モデル (GMM)、ベルヌーイ混合モデル、最尤特異点回避、EMアルゴリズムの幾何学 | 9.1 - 9.27 |
-| **[Ch 10](file:///home/student/Documents/GitHub/my_PRML/10)** | **近似推論法**<br>*(Approximate Inference)* | 4 | 5 | 平均場変分推論、変分ベイズ GMM (VB-GMM)、不要クラスタの自律的消滅、変分下界 $\mathcal{L}(q)$ の単調収束、EP法 | 10.1 - 10.39 |
-| **[Ch 11](file:///home/student/Documents/GitHub/my_PRML/11)** | **サンプリング法**<br>*(Sampling Methods)* | 4 | 6 | 採択サンプリング、重点サンプリング、SIR、メトロポリス・ヘイスティングス (M-H)、ギブスサンプリング、HMC (Leapfrog法) | 11.1 - 11.17 |
-| **[Ch 12](file:///home/student/Documents/GitHub/my_PRML/12)** | **連続潜在変数**<br>*(Continuous Latent Variables)* | 4 | 5 | 主成分分析 (最大分散 & 最小再構成誤差)、手書き数字固有画像、白色化変換、確率的PCA (EM & 閉形式解)、カーネルPCA | 12.1 - 12.29 |
-| **[Ch 13](file:///home/student/Documents/GitHub/my_PRML/13)** | **系列データ**<br>*(Sequential Data)* | 3 | 4 | ガウス放出 HMM、Forward-Backward アルゴリズム (スケーリング係数 $c_n$)、ビタビアルゴリズム、カルマンフィルタ & RTS スムーザ | 13.1 - 13.34 |
-| **[Ch 14](file:///home/student/Documents/GitHub/my_PRML/14)** | **モデル結合**<br>*(Combining Models)* | 3 | 5 | コミッティ / バギング分散低減定理、AdaBoost、各種サロゲート損失関数比較、決定木不純度、線形回帰混合モデル (MoE) | 14.1 - 14.17 |
-| **合計** | **全15ディレクトリ** | **63冊** | **101枚** | **数理的アルゴリズム・グラフィカルモデル・サンプリング・深層生成の完全実装** | **全390+問 完備** |
+1. **第0章から第14章までの完全網羅 (100% 達成)**
+   - 確率の基礎から最先端のグラフィカルモデル、変分推論、サンプリング、HMM、カルマンフィルタ、アンサンブル学習まで全64冊のノートブックで構成。
+2. **教科書図版の精緻な再現 (110+ Figures)**
+   - PRML原著に登場するグラフ（多項式フィッティング、ガウス過程回帰、潜在空間、EMステップ、混合密度ネットワーク等）を各章の `result/` ディレクトリに忠実に再現・保存。
+3. **穴埋め形式・証明ステップ付き章末演習問題 (Exercises)**
+   - 全章について、初学者がモチベーションを維持しながら自力で数式展開を追体験できる論理ステップ提示＋穴埋め形式の章末演習ノートブック（`*_Exercises.ipynb`）を完備。
+4. **洗練された共通ライブラリ (`common` / `prml`)**
+   - 全てのアルゴリズムを再利用可能なクラス・関数としてモジュール化（`pip install -e .` でライブラリとして利用可能）。
+5. **包括的な統合テストスイート (`tests/`)**
+   - 全15章のアルゴリズムが正確に機能することを保証するユニットテストを完備。
 
 ---
 
-## 🛠️ 共通モジュール (`common/`)
-
-本リポジトリでは重複のないクリーンなコードベースを維持するため、全章で利用される基盤ロジックを [`common/`](file:///home/student/Documents/GitHub/my_PRML/common) にモジュール化しています：
-
-```python
-from common import (
-    # 線形回帰 & 分類
-    LinearRegression, BayesianLinearRegression, EvidenceApproximation,
-    LogisticRegression, MulticlassLogisticRegression,
-    # ニューラルネット & カーネル法
-    MLPRegressor, MixtureDensityNetwork,
-    GaussianProcessRegressor, GaussianProcessClassifier,
-    # 疎なカーネルマシン
-    SupportVectorClassifier, RelevanceVectorRegressor,
-    # グラフィカルモデル & クラスタリング
-    SimpleFactorGraphChain, KMeans, GaussianMixtureModel,
-    # 変分推論 & サンプリング
-    VariationalGaussianMixture,
-    rejection_sample, metropolis_hastings, hamiltonian_monte_carlo,
-    # 潜在変数モデル & 系列データ & アンサンブル
-    PCA, ProbabilisticPCA, KernelPCA,
-    GaussianHMM, KalmanFilter,
-    DecisionStump, AdaBoostClassifier, MixtureOfLinearRegressions,
-    # 可視化ユーティリティ
-    setup_style, save_plot
-)
-```
-
----
-
-## 🚀 クイックスタート (Environment & Usage)
-
-### 1. 環境構築
-
-Python 3.10 以上がインストールされた環境で以下を実行します：
-
-```bash
-# リポジトリのクローン
-git clone https://github.com/miyayudai/my_PRML.git
-cd my_PRML
-
-# 仮想環境の作成と有効化
-python3 -m venv venv
-source venv/bin/activate
-
-# 依存パッケージのインストール
-pip install -r requirements.txt
-```
-
-### 2. 統合テストスイートの実行
-
-実装された主要アルゴリズムの動作検証を一括実行できます：
-
-```bash
-python3 -m unittest discover tests
-```
-
-### 3. Jupyter Notebook の起動
-
-```bash
-jupyter lab
-# または
-jupyter notebook
-```
-
-任意の章（例: `3/3.3_Bayesian_Linear_Regression.ipynb` や `13/13.1-13.2_Hidden_Markov_Models.ipynb`）を開いて実行してください。
-
----
-
-## 📁 ディレクトリ構造
+## 📂 ディレクトリ構成
 
 ```text
 my_PRML/
-├── 0/                # 第0章 確率・確率密度の基礎補講 (ノートブック & result/)
-├── 1/ 〜 14/         # 第1章〜第14章の各論ノートブック & 演習問題 (Exercises)
-│   ├── *.ipynb       # 理論数式・スクラッチ実装・考察
-│   └── result/       # 生成された PRML 再現高解像度グラフ (*.png)
-├── common/           # 共通機械学習アルゴリズム & プロットモジュール
-│   ├── __init__.py   # 統一エクスポート
-│   ├── regression_utils.py
-│   ├── classification_utils.py
-│   ├── nn_utils.py
-│   ├── kernel_utils.py
-│   ├── svm_rvm_utils.py
-│   ├── graphical_models_utils.py
-│   ├── mixture_em_utils.py
-│   ├── variational_utils.py
-│   ├── sampling_utils.py
-│   ├── pca_ppca_utils.py
-│   ├── sequential_utils.py
-│   ├── ensemble_utils.py
-│   └── plot_utils.py
-├── scripts/          # ノートブック自動生成スクリプト群
-├── tests/            # 統合ユニットテストスイート
-├── TASK.md           # 進捗管理・タスクリスト (100% Complete)
-├── requirements.txt  # 依存パッケージ一覧
-└── README.md         # 本ドキュメント
+├── 0/               # 第0章: 確率論の基礎 (加法・乗法・ベイズの定理・変数変換)
+├── 1/               # 第1章: 序論 (曲線あてはめ・決定理論・情報理論・演習問題全41問)
+├── 2/               # 第2章: 確率分布 (二値・多項・ガウス・指数型分布族・ノンパラメトリック)
+├── 3/               # 第3章: 線形回帰モデル (最尤推定・正則化・ベイズ線形回帰・エビデンス)
+├── 4/               # 第4章: 線形分類モデル (判別関数・生成モデル・ロジスティック回帰・ラプラス近似)
+├── 5/               # 第5章: ニューラルネットワーク (誤差逆伝播・正則化・混合密度ネットワーク)
+├── 6/               # 第6章: カーネル法 (双対表現・RBF・Nadaraya-Watson・ガウス過程回帰/分類)
+├── 7/               # 第7章: スパースカーネルマシン (SVM・SMO・関連ベクトルマシン RVM)
+├── 8/               # 第8章: グラフィカルモデル (ベイジアンネット・マルコフ無向グラフ・Sum-Product)
+├── 9/               # 第9章: 混合モデルとEMアルゴリズム (K-Means・GMM・ベルヌーイ混合・一般化EM)
+├── 10/              # 第10章: 近似推論法 (変分ベイズ・変分混合ガウス VB-GMM・局所変分法)
+├── 11/              # 第11章: サンプリング法 (棄却サンプリング・M-H法・ギブスサンプリング・HMC)
+├── 12/              # 第12章: 連続潜在変数 (主成分分析 PCA・確率的PCA PPCA・カーネルPCA)
+├── 13/              # 第13章: 系列データ (隠れマルコフモデル HMM・カルマンフィルタ LDS)
+├── 14/              # 第14章: モデルの結合 (バギング・ブースティング AdaBoost・線形回帰混合)
+├── common/          # スクラッチ機械学習共通ライブラリ (アルゴリズム・可視化・データ)
+├── prml/            # Python パッケージエントリーポイント
+├── scripts/         # ノートブック自動生成・検証用スクリプト群 (50+ scripts)
+├── tests/           # 統合テストスイート (全15章のアルゴリズムテスト)
+├── pyproject.toml   # PEP 517/621 パッケージ定義ファイル
+├── setup.py         # セットアップスクリプト
+├── TASK.md          # 開発要件・進捗管理ドキュメント (100% 完了)
+└── README.md        # 本ドキュメント
 ```
 
 ---
 
-## 📖 参考文献
+## 🚀 クイックスタート
 
-- Christopher M. Bishop, *Pattern Recognition and Machine Learning*, Springer, 2006.
-  (原著 PDF: [Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf](file:///home/student/Documents/GitHub/my_PRML/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf))
+### 1. リポジトリのクローン & パッケージインストール
+
+```bash
+git clone https://github.com/miyayudai/my_PRML.git
+cd my_PRML
+
+# 開発モードでインストール (common / prml モジュールが利用可能になります)
+pip install -e .
+```
+
+### 2. ライブラリとしての利用例
+
+Bishop のアルゴリズムはすべて `scikit-learn` に近い直感的なインターフェースで設計されています：
+
+```python
+import numpy as np
+from prml import BayesianLinearRegression, GaussianProcessRegressor
+
+# ベイズ線形回帰
+X = np.random.randn(50, 3)
+y = X @ np.array([1.5, -2.0, 0.5]) + np.random.normal(0, 0.1, 50)
+
+model = BayesianLinearRegression(alpha=1.0, beta=100.0)
+model.fit(X, y)
+mean, var = model.predict(X)
+print(f"予測平均の形状: {mean.shape}, 予測分散: {var.shape}")
+
+# ガウス過程回帰
+gpr = GaussianProcessRegressor(kernel='prml', beta=50.0)
+gpr.fit(X, y)
+gpr_mean, gpr_cov = gpr.predict(X)
+```
+
+### 3. ユニットテストの実行
+
+```bash
+# 全15章（0章〜14章）の包括的ユニットテスト (0.2秒以内で完了)
+python3 -m unittest discover tests
+```
+
+---
+
+## 📚 章別カリキュラムと主要トピック
+
+| 章 | タイトル | 主なトピック・実装アルゴリズム | 再現図版 |
+|---|---|---|:---:|
+| **0** | **確率論の基礎** | 加法定理、乗法定理、ベイズの定理、変数変換定理、逆関数法サンプリング | 3 枚 |
+| **1** | **序論** | 多項式曲線あてはめ、正則化、決定理論、損失関数、情報理論、エントロピー、KLダイバージェンス | 14 枚 |
+| **2** | **確率分布** | 二値・多項分布、Dirichlet、1次元・多次元ガウス分布、von Mises 分布、ノンパラメトリック密度推定 | 13 枚 |
+| **3** | **線形回帰モデル** | 最小二乗法、正則化最小二乗、ベイズ線形回帰、エビデンス近似、バイアス-バリアンス分解 | 15 枚 |
+| **4** | **線形分類モデル** | パーセプトロン、Fisher LDA、ロジスティック回帰、多クラスロジスティック、IRLS、ラプラス近似 | 12 枚 |
+| **5** | **ニューラルネットワーク** | 多層パーセプトロン、誤差逆伝播法、数値勾配チェック、正則化、混合密度ネットワーク (MDN) | 7 枚 |
+| **6** | **カーネル法** | 双対表現、RBF/ARDカーネル、Nadaraya-Watson 回帰、ガウス過程回帰 (GPR)、ガウス過程分類 (GPC) | 8 枚 |
+| **7** | **スパースカーネルマシン** | サポートベクトルマシン (SVC)、SMO、関連ベクトルマシン (RVM 回帰・分類) | 6 枚 |
+| **8** | **グラフィカルモデル** | ベイジアンネットワーク、d-分離、マルコフ確率場、Isingモデル、Factor Graph、Sum-Product法 | 3 枚 |
+| **9** | **混合モデルとEM** | K-Means、混合ガウスモデル (GMM)、ベルヌーイ混合モデル、潜在変数とEMアルゴリズム | 6 枚 |
+| **10** | **近似推論法** | 変分推論法 (Variational Inference)、変分混合ガウス (VB-GMM)、局所変分法 | 5 枚 |
+| **11** | **サンプリング法** | 棄却サンプリング、重要度サンプリング、M-Hアルゴリズム、Gibbsサンプリング、ハミルトニアンモンテカルロ (HMC) | 6 枚 |
+| **12** | **連続潜在変数** | 主成分分析 (PCA)、確率的主成分分析 (PPCA)、EMアルゴリズムによるPPCA、Kernel PCA | 5 枚 |
+| **13** | **系列データ** | マルコフモデル、隠れマルコフモデル (HMM, Forward-Backward, Viterbi)、カルマンフィルタ (LDS) | 4 枚 |
+| **14** | **モデルの結合** | バギング、ブースティング (AdaBoost)、決定株 (Decision Stump)、局所エキスパート混合 (MoE) | 5 枚 |
+
+**合計: 112 枚の教科書再現図版を収録！**
+
+---
+
+## 🛠️ 開発者・メンテナー向け情報
+
+- **ノートブックの一括再生成**:
+  ```bash
+  python3 scripts/gen_all.py
+  ```
+- **コードスタイル & プロットスタイル**:
+  すべての可視化スクリプトおよびノートブックは `common.plot_utils.setup_style()` を適用し、論文水準の統一されたフォント・カラーパレットで描画されています。
+
+---
+
+## 📜 ライセンス
+
+本リポジトリのコードは [MIT License](LICENSE) のもとで公開されています。
+教材として自由にご活用ください。

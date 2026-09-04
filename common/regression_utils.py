@@ -12,6 +12,9 @@ class PolynomialBasis:
         Phi = np.hstack([X**i for i in range(self.degree + 1)])
         return Phi
 
+    def transform(self, X):
+        return self(X)
+
 class GaussianBasis:
     """ガウス基底関数: phi_j(x) = exp(- (x - mu_j)^2 / (2 * s^2))"""
     def __init__(self, centers, scale):
@@ -29,6 +32,9 @@ class GaussianBasis:
             Phi.append(phi_j)
         return np.hstack(Phi)
 
+    def transform(self, X):
+        return self(X)
+
 class SigmoidalBasis:
     """シグモイド基底関数: phi_j(x) = sigma((x - mu_j) / s)"""
     def __init__(self, centers, scale):
@@ -45,6 +51,10 @@ class SigmoidalBasis:
             phi_j = 1.0 / (1.0 + np.exp(-a))
             Phi.append(phi_j)
         return np.hstack(Phi)
+
+    def transform(self, X):
+        return self(X)
+
 
 class LinearRegression:
     """PRML 式 (3.15) に基づく線形回帰（最尤推定 / 最小二乗解）"""
