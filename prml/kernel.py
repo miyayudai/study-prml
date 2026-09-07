@@ -12,6 +12,7 @@ from common.kernel_utils import (
 
 from common.svm_rvm_utils import (
     SupportVectorClassifier,
+    SupportVectorRegressor,
     RelevanceVectorRegressor,
     RelevanceVectorClassifier,
 )
@@ -22,6 +23,7 @@ __all__ = [
     "GaussianProcessRegressor",
     "GaussianProcessClassifier",
     "SupportVectorClassifier",
+    "SupportVectorRegressor",
     "RelevanceVectorRegressor",
     "RelevanceVectorClassifier",
 ]

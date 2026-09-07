@@ -87,6 +87,91 @@ class SupportVectorClassifier:
     def predict(self, X):
         return np.sign(self.decision_function(X))
 
+class SupportVectorRegressor:
+    """
+    サポートベクトル回帰 (Support Vector Regression: SVR, PRML 7.1.4節)
+    epsilon-不感帯損失と双対二次計画法による解法 (PRML 式 7.59 - 7.68)
+    """
+    def __init__(self, C=1.0, epsilon=0.1, kernel='rbf', **kernel_kwargs):
+        self.C = float(C)
+        self.epsilon = float(epsilon)
+        self.kernel = resolve_kernel(kernel)
+        self.kernel_kwargs = kernel_kwargs
+        self.X_train = None
+        self.t_train = None
+        self.a = None
+        self.a_hat = None
+        self.b = 0.0
+        self.sv_indices = None
+        self.sv_X = None
+        self.sv_weights = None
+
+    def fit(self, X, t):
+        self.X_train = np.atleast_2d(X)
+        self.t_train = np.asarray(t, dtype=float).ravel()
+        N = len(self.X_train)
+
+        K = self.kernel(self.X_train, self.X_train, **self.kernel_kwargs)
+        # 決定変数 alpha_tilde = [a; a_hat] (2N 次元)
+        # (a - a_hat)^T K (a - a_hat)
+        # B = [I, -I], B^T K B
+        B = np.hstack([np.eye(N), -np.eye(N)])
+        Q = B.T @ K @ B
+        Q = 0.5 * (Q + Q.T) + 1e-8 * np.eye(2 * N)
+
+        # 線形項: eps * (a + a_hat) - (a - a_hat)^T t
+        c = np.hstack([self.epsilon - self.t_train, self.epsilon + self.t_train])
+
+        def objective(alpha):
+            return 0.5 * alpha @ Q @ alpha + c @ alpha
+
+        def obj_grad(alpha):
+            return Q @ alpha + c
+
+        # 制約: sum(a - a_hat) = 0
+        eq_vec = np.hstack([np.ones(N), -np.ones(N)])
+        constraints = {'type': 'eq', 'fun': lambda alpha: np.dot(alpha, eq_vec), 'jac': lambda alpha: eq_vec}
+        bounds = [(0.0, self.C) for _ in range(2 * N)]
+
+        alpha0 = np.zeros(2 * N)
+        res = opt.minimize(objective, alpha0, jac=obj_grad, constraints=constraints, bounds=bounds, method='SLSQP', options={'maxiter': 500, 'ftol': 1e-7})
+
+        alpha_opt = res.x
+        self.a = alpha_opt[:N]
+        self.a_hat = alpha_opt[N:]
+
+        # サポートベクトルの抽出 (a_n > 1e-5 または a_hat_n > 1e-5)
+        sv_mask = (self.a > 1e-5) | (self.a_hat > 1e-5)
+        self.sv_indices = np.where(sv_mask)[0]
+        self.sv_X = self.X_train[self.sv_indices]
+        self.sv_weights = (self.a - self.a_hat)[self.sv_indices]
+
+        # バイアス b の計算 (PRML 式 7.67, 7.68)
+        b_candidates = []
+        K_all = K[:, self.sv_indices] @ self.sv_weights if len(self.sv_indices) > 0 else np.zeros(N)
+        for n in range(N):
+            if 1e-5 < self.a[n] < self.C - 1e-5:
+                b_candidates.append(self.t_train[n] - self.epsilon - K_all[n])
+            elif 1e-5 < self.a_hat[n] < self.C - 1e-5:
+                b_candidates.append(self.t_train[n] + self.epsilon - K_all[n])
+
+        if len(b_candidates) > 0:
+            self.b = float(np.mean(b_candidates))
+        else:
+            if len(self.sv_indices) > 0:
+                self.b = float(np.mean(self.t_train - K_all))
+            else:
+                self.b = float(np.mean(self.t_train))
+
+        return self
+
+    def predict(self, X):
+        X = np.atleast_2d(X)
+        if len(self.sv_indices) == 0:
+            return np.full(len(X), self.b)
+        K_test = self.kernel(X, self.sv_X, **self.kernel_kwargs)
+        return K_test @ self.sv_weights + self.b
+
 class RelevanceVectorRegressor:
     """
     関連ベクトルマシン回帰 (Relevance Vector Machine for Regression: RVM, PRML 7.2.1節)

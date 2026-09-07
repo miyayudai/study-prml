@@ -13,6 +13,7 @@ from prml.kernel import (
     GaussianProcessRegressor,
     GaussianProcessClassifier,
     SupportVectorClassifier,
+    SupportVectorRegressor,
     RelevanceVectorRegressor,
     RelevanceVectorClassifier,
 )
@@ -136,6 +137,20 @@ class TestSparseKernelMachines(unittest.TestCase):
         self.assertEqual(len(probs), 30)
         self.assertTrue(np.all((probs >= 0.0) & (probs <= 1.0)))
         self.assertLess(len(rvc.rv_indices), len(X))
+
+    def test_svr_epsilon_tube_and_sparsity(self):
+        # PRML 7.1.4節: サポートベクトル回帰 (SVR)
+        X = np.linspace(-2, 2, 25)[:, np.newaxis]
+        y = np.cos(X).ravel()
+        svr = SupportVectorRegressor(C=10.0, epsilon=0.1, kernel='rbf', gamma=0.5).fit(X, y)
+        preds = svr.predict(X)
+        mse = np.mean((preds - y)**2)
+        self.assertLess(mse, 0.05)
+        # a_n * a_hat_n == 0 (PRML Ex 7.10)
+        prod = svr.a * svr.a_hat
+        np.testing.assert_allclose(prod, np.zeros_like(prod), atol=1e-5)
+        # sum(a - a_hat) == 0 (PRML Eq 7.66)
+        self.assertAlmostEqual(np.sum(svr.a - svr.a_hat), 0.0, places=4)
 
 
 if __name__ == '__main__':
