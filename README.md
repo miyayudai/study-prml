@@ -1,7 +1,7 @@
 # PRML (Pattern Recognition and Machine Learning) Python Implementation
 
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-123%20passed-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-156%20passed-success.svg)](tests/)
 [![PRML](https://img.shields.io/badge/PRML-Complete%20All%20Chapters-brightgreen.svg)](TASK.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -12,14 +12,14 @@ Christopher M. Bishop の世界的名著『**Pattern Recognition and Machine Lea
 ## 🌟 主な特徴
 
 1. **第0章〜第14章（全15章・全64冊）の完全Notebook化**
-   - 原著の全節（1.1〜1.6、2.1〜2.5...）を網羅した詳細なJupyter Notebookと、112枚を超える高精細な再現図版。
+   - 原著の全節（1.1〜1.6、2.1〜2.5...）を網羅した詳細なJupyter Notebookと、113枚を超える高精細な再現図版。
    - 理論（数式導出・LaTeX）と実装（Pythonスクラッチコード）を一体化。
 2. **全章の演習問題（Exercises）を網羅**
    - 穴埋め形式（`None` / `# YOUR CODE HERE` / 語句穴埋め `___`）および数値検証コードを完備。独学や演習ゼミに最適。
 3. **高品質な `prml` パッケージとしてのライブラリ化**
    - `pip install -e .` でインストール可能。PRMLで登場する全ての基盤アルゴリズムを統一されたモダンなAPIで提供。
-4. **包括的テストスイート (123 Tests)**
-   - **123件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約0.6秒で全件通過）。GitHub Actions CI による継続的自動テストも整備。
+4. **包括的テストスイート (156 Tests)**
+   - **156件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約2.6秒で全件通過）。CI による継続的自動テストも整備。
 
 ---
 

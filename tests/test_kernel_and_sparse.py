@@ -54,6 +54,40 @@ class TestKernelMethods(unittest.TestCase):
         probs = gpc.predict_proba(X)
         self.assertTrue(np.all((probs >= 0.0) & (probs <= 1.0)))
 
+    def test_gram_matrix_positive_semidefinite(self):
+        # PRML 6.2節 式 (6.13): 有効なカーネルのグラム行列は常に半正定値 K >= 0 (Mercer's theorem)
+        X = np.random.randn(20, 3)
+        
+        # 1. ガウス / RBF カーネル
+        from common.kernel_utils import rbf_kernel, linear_kernel
+        K_rbf = rbf_kernel(X, X, length_scale=1.5)
+        eigvals_rbf = np.linalg.eigvalsh(K_rbf)
+        self.assertTrue(np.all(eigvals_rbf >= -1e-10))
+
+        # 2. 線形カーネル K = X @ X.T
+        K_lin = linear_kernel(X, X)
+        eigvals_lin = np.linalg.eigvalsh(K_lin)
+        self.assertTrue(np.all(eigvals_lin >= -1e-10))
+
+    def test_nadaraya_watson_partition_of_unity(self):
+        # PRML 6.3.1節 式 (6.43): Nadaraya-Watson 核回帰の有効重みの総和は 1
+        # y(x) = sum_n k(x, x_n) t_n where sum_n k(x, x_n) == 1
+        X = np.linspace(-1, 1, 15)[:, np.newaxis]
+        y = X.ravel()**2
+        nw = NadarayaWatsonRegressor(kernel='gaussian', h=0.3).fit(X, y)
+        
+        X_test = np.array([[-0.5], [0.0], [0.7]])
+        # 各テスト点に対する全訓練サンプルへのカーネル重みの総和を計算
+        dists_sq = (X_test - X.T)**2
+        weights = np.exp(-0.5 * dists_sq / (0.3**2))
+        normalized_weights = weights / np.sum(weights, axis=1, keepdims=True)
+        np.testing.assert_allclose(np.sum(normalized_weights, axis=1), np.ones(3), atol=1e-10)
+
+        preds = nw.predict(X_test)
+        preds_direct = normalized_weights @ y
+        np.testing.assert_allclose(preds, preds_direct, atol=1e-10)
+
+
 class TestSparseKernelMachines(unittest.TestCase):
 
     def setUp(self):
@@ -70,6 +104,19 @@ class TestSparseKernelMachines(unittest.TestCase):
         # サポートベクトルが存在すること
         self.assertGreater(len(svc.sv_indices), 0)
 
+    def test_svc_kkt_complementarity(self):
+        # PRML 7.1.1節 式 (7.21): KKT 相補性条件 a_n (t_n y(x_n) - 1 + xi_n) = 0
+        X, y = make_blobs(n_samples=30, centers=2, cluster_std=0.7, random_state=42)
+        y_pm = np.where(y == 0, -1, 1)
+        
+        svc = SupportVectorClassifier(C=5.0, kernel='linear').fit(X, y_pm)
+        # 非サポートベクトル (a_n == 0) ではマージン条件 t_n y(x_n) >= 1
+        decision = svc.decision_function(X)
+        functional_margin = y_pm * decision
+        
+        non_sv_idx = np.where(svc.a < 1e-5)[0]
+        self.assertTrue(np.all(functional_margin[non_sv_idx] >= 1.0 - 1e-3))
+
     def test_rvm_sparsity(self):
         # RVM のスパース性（関連ベクトル数が全サンプル数より著しく少ないこと）
         X = np.linspace(-2, 2, 30)[:, np.newaxis]
@@ -81,5 +128,16 @@ class TestSparseKernelMachines(unittest.TestCase):
         # 関連ベクトル数が30未満に刈り込まれる
         self.assertLess(len(rvr.rv_indices), 30)
 
+    def test_rvc_classification_sparsity(self):
+        # PRML 7.2.3節: 関連ベクトル分類器 (RVC) によるスパース決定境界
+        X, y = make_blobs(n_samples=30, centers=2, cluster_std=1.0, random_state=42)
+        rvc = RelevanceVectorClassifier(kernel='rbf', gamma=0.5, max_iter=50).fit(X, y)
+        probs = rvc.predict_proba(X)
+        self.assertEqual(len(probs), 30)
+        self.assertTrue(np.all((probs >= 0.0) & (probs <= 1.0)))
+        self.assertLess(len(rvc.rv_indices), len(X))
+
+
 if __name__ == '__main__':
     unittest.main()
+
