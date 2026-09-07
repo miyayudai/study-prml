@@ -1,0 +1,387 @@
+6.4. Gaussian Processes
+
+Exercise 6.25
+
+317
+
+maximum. The posterior distribution is not Gaussian, however, because the Hessian
+is a function of aN .
+Using the Newton-Raphson formula (4.92), the iterative update equation for aN
+is given by
+−1
+{tN − σ N + WN aN } .
+anew
+N = CN (I + WN CN )
+
+(6.83)
+
+These equations are iterated until they converge to the mode which we denote by
+aN . At the mode, the gradient ∇Ψ(aN ) will vanish, and hence aN will satisfy
+aN = CN (tN − σ N ).
+
+(6.84)
+
+Once we have found the mode aN of the posterior, we can evaluate the Hessian
+matrix given by
+1
+(6.85)
+H = −∇∇Ψ(aN ) = WN + C−
+N
+where the elements of WN are evaluated using aN . This deﬁnes our Gaussian approximation to the posterior distribution p(aN |tN ) given by
+q(aN ) = N (aN |aN , H−1 ).
+
+Exercise 6.26
+
+(6.86)
+
+We can now combine this with (6.78) and hence evaluate the integral (6.77). Because
+this corresponds to a linear-Gaussian model, we can use the general result (2.115) to
+give
+E[aN +1 |tN ] = kT (tN − σ N )
+−1
++ CN )−1 k.
+var[aN +1 |tN ] = c − kT (WN
+
+(6.87)
+(6.88)
+
+Now that we have a Gaussian distribution for p(aN +1 |tN ), we can approximate
+the integral (6.76) using the result (4.153). As with the Bayesian logistic regression
+model of Section 4.5, if we are only interested in the decision boundary corresponding to p(tN +1 |tN ) = 0.5, then we need only consider the mean and we can ignore
+the effect of the variance.
+We also need to determine the parameters θ of the covariance function. One
+approach is to maximize the likelihood function given by p(tN |θ) for which we need
+expressions for the log likelihood and its gradient. If desired, suitable regularization
+terms can also be added, leading to a penalized maximum likelihood solution. The
+likelihood function is deﬁned by
+
+p(tN |θ) = p(tN |aN )p(aN |θ) daN .
+(6.89)
+This integral is analytically intractable, so again we make use of the Laplace approximation. Using the result (4.135), we obtain the following approximation for the log
+of the likelihood function
+ln p(tN |θ) = Ψ(aN ) −
+
+1
+N
+1
+ln |WN + C−
+ln(2π)
+N |+
+2
+2
+
+(6.90)
+
+318
+
+6. KERNEL METHODS
+where Ψ(aN ) = ln p(aN |θ) + ln p(tN |aN ). We also need to evaluate the gradient
+of ln p(tN |θ) with respect to the parameter vector θ. Note that changes in θ will
+cause changes in aN , leading to additional terms in the gradient. Thus, when we
+differentiate (6.90) with respect to θ, we obtain two sets of terms, the ﬁrst arising
+from the dependence of the covariance matrix CN on θ, and the rest arising from
+dependence of aN on θ.
+The terms arising from the explicit dependence on θ can be found by using
+(6.80) together with the results (C.21) and (C.22), and are given by
+∂ ln p(tN |θ)
+∂θj
+
+=
+
+1 T −1 ∂CN −1 
+a C
+C a
+2 N N ∂θj N N
+
+
+∂CN
+1
+−1
+− Tr (I + CN WN ) WN
+.
+2
+∂θj
+
+(6.91)
+
+To compute the terms arising from the dependence of aN on θ, we note that
+the Laplace approximation has been constructed such that Ψ(aN ) has zero gradient
+at aN = aN , and so Ψ(aN ) gives no contribution to the gradient as a result of its
+dependence on aN . This leaves the following contribution to the derivative with
+respect to a component θj of θ
+1
+
+1  ∂ ln |WN + C−
+N | ∂an
+−
+2
+∂an
+∂θj
+
+N
+
+n=1
+
+1 
+∂a
+(I + CN WN )−1 CN nn σn (1 − σn )(1 − 2σn ) n
+2
+∂θj
+N
+
+=−
+
+(6.92)
+
+n=1
+
+where σn = σ(an ), and again we have used the result (C.22) together with the
+deﬁnition of WN . We can evaluate the derivative of aN with respect to θj by differentiating the relation (6.84) with respect to θj to give
+∂an
+∂a
+∂CN
+=
+(tN − σ N ) − CN WN n .
+∂θj
+∂θj
+∂θj
+
+(6.93)
+
+Rearranging then gives
+∂an
+∂CN
+= (I + WN CN )−1
+(tN − σ N ).
+∂θj
+∂θj
+
+Appendix A
+
+(6.94)
+
+Combining (6.91), (6.92), and (6.94), we can evaluate the gradient of the log
+likelihood function, which can be used with standard nonlinear optimization algorithms in order to determine a value for θ.
+We can illustrate the application of the Laplace approximation for Gaussian processes using the synthetic two-class data set shown in Figure 6.12. Extension of the
+Laplace approximation to Gaussian processes involving K > 2 classes, using the
+softmax activation function, is straightforward (Williams and Barber, 1998).
+
+6.4. Gaussian Processes
+
+319
+
+2
+
+0
+
+−2
+−2
+
+0
+
+2
+
+Figure 6.12 Illustration of the use of a Gaussian process for classiﬁcation, showing the data on the left together
+with the optimal decision boundary from the true distribution in green, and the decision boundary from the
+Gaussian process classiﬁer in black. On the right is the predicted posterior probability for the blue and red
+classes together with the Gaussian process decision boundary.
+
+6.4.7 Connection to neural networks
+We have seen that the range of functions which can be represented by a neural
+network is governed by the number M of hidden units, and that, for sufﬁciently
+large M , a two-layer network can approximate any given function with arbitrary
+accuracy. In the framework of maximum likelihood, the number of hidden units
+needs to be limited (to a level dependent on the size of the training set) in order
+to avoid over-ﬁtting. However, from a Bayesian perspective it makes little sense to
+limit the number of parameters in the network according to the size of the training
+set.
+In a Bayesian neural network, the prior distribution over the parameter vector
+w, in conjunction with the network function f (x, w), produces a prior distribution
+over functions from y(x) where y is the vector of network outputs. Neal (1996)
+has shown that, for a broad class of prior distributions over w, the distribution of
+functions generated by a neural network will tend to a Gaussian process in the limit
+M → ∞. It should be noted, however, that in this limit the output variables of the
+neural network become independent. One of the great merits of neural networks is
+that the outputs share the hidden units and so they can ‘borrow statistical strength’
+from each other, that is, the weights associated with each hidden unit are inﬂuenced
+by all of the output variables not just by one of them. This property is therefore lost
+in the Gaussian process limit.
+We have seen that a Gaussian process is determined by its covariance (kernel)
+function. Williams (1998) has given explicit forms for the covariance in the case of
+two speciﬁc choices for the hidden unit activation function (probit and Gaussian).
+These kernel functions k(x, x ) are nonstationary, i.e. they cannot be expressed as
+a function of the difference x − x , as a consequence of the Gaussian weight prior
+being centred on zero which breaks translation invariance in weight space.
+
+320
+
+6. KERNEL METHODS
+By working directly with the covariance function we have implicitly marginalized over the distribution of weights. If the weight prior is governed by hyperparameters, then their values will determine the length scales of the distribution over
+functions, as can be understood by studying the examples in Figure 5.11 for the case
+of a ﬁnite number of hidden units. Note that we cannot marginalize out the hyperparameters analytically, and must instead resort to techniques of the kind discussed in
+Section 6.4.
+
+Exercises
+
+6.1 ( ) www Consider the dual formulation of the least squares linear regression
+problem given in Section 6.1. Show that the solution for the components an of
+the vector a can be expressed as a linear combination of the elements of the vector
+φ(xn ). Denoting these coefﬁcients by the vector w, show that the dual of the dual
+formulation is given by the original representation in terms of the parameter vector
+w.
+6.2 ( ) In this exercise, we develop a dual formulation of the perceptron learning
+algorithm. Using the perceptron learning rule (4.55), show that the learned weight
+vector w can be written as a linear combination of the vectors tn φ(xn ) where tn ∈
+{−1, +1}. Denote the coefﬁcients of this linear combination by αn and derive a
+formulation of the perceptron learning algorithm, and the predictive function for the
+perceptron, in terms of the αn . Show that the feature vector φ(x) enters only in the
+form of the kernel function k(x, x ) = φ(x)T φ(x ).
+6.3 ( ) The nearest-neighbour classiﬁer (Section 2.5.2) assigns a new input vector x
+to the same class as that of the nearest input vector xn from the training set, where
+in the simplest case, the distance is deﬁned by the Euclidean metric x − xn 2 . By
+expressing this rule in terms of scalar products and then making use of kernel substitution, formulate the nearest-neighbour classiﬁer for a general nonlinear kernel.
+6.4 ( ) In Appendix C, we give an example of a matrix that has positive elements but
+that has a negative eigenvalue and hence that is not positive deﬁnite. Find an example
+of the converse property, namely a 2 × 2 matrix with positive eigenvalues yet that
+has at least one negative element.
+6.5 ( ) www
+
+Verify the results (6.13) and (6.14) for constructing valid kernels.
+
+6.6 ( ) Verify the results (6.15) and (6.16) for constructing valid kernels.
+6.7 ( ) www
+
+Verify the results (6.17) and (6.18) for constructing valid kernels.
+
+6.8 ( ) Verify the results (6.19) and (6.20) for constructing valid kernels.
+6.9 ( ) Verify the results (6.21) and (6.22) for constructing valid kernels.
+6.10 ( ) Show that an excellent choice of kernel for learning a function f (x) is given
+by k(x, x ) = f (x)f (x ) by showing that a linear learning machine based on this
+kernel will always ﬁnd a solution proportional to f (x).
+
+Exercises
+
+321
+
+6.11 ( ) By making use of the expansion (6.25), and then expanding the middle factor
+as a power series, show that the Gaussian kernel (6.23) can be expressed as the inner
+product of an inﬁnite-dimensional feature vector.
+6.12 ( ) www Consider the space of all possible subsets A of a given ﬁxed set D.
+Show that the kernel function (6.27) corresponds to an inner product in a feature
+space of dimensionality 2|D| deﬁned by the mapping φ(A) where A is a subset of D
+and the element φU (A), indexed by the subset U , is given by
+φU (A) =
+
+1, if U ⊆ A;
+0, otherwise.
+
+(6.95)
+
+Here U ⊆ A denotes that U is either a subset of A or is equal to A.
+6.13 ( ) Show that the Fisher kernel, deﬁned by (6.33), remains invariant if we make
+a nonlinear transformation of the parameter vector θ → ψ(θ), where the function
+ψ(·) is invertible and differentiable.
+6.14 ( ) www Write down the form of the Fisher kernel, deﬁned by (6.33), for the
+case of a distribution p(x|µ) = N (x|µ, S) that is Gaussian with mean µ and ﬁxed
+covariance S.
+6.15 ( ) By considering the determinant of a 2 × 2 Gram matrix, show that a positivedeﬁnite kernel function k(x, x ) satisﬁes the Cauchy-Schwartz inequality
+k(x1 , x2 )2 ⩽ k(x1 , x1 )k(x2 , x2 ).
+
+(6.96)
+
+6.16 ( ) Consider a parametric model governed by the parameter vector w together
+with a data set of input values x1 , . . . , xN and a nonlinear feature mapping φ(x).
+Suppose that the dependence of the error function on w takes the form
+J(w) = f (wT φ(x1 ), . . . , wT φ(xN )) + g(wT w)
+
+(6.97)
+
+where g(·) is a monotonically increasing function. By writing w in the form
+w=
+
+N
+
+
+αn φ(xn ) + w⊥
+
+(6.98)
+
+n=1
+
+show that the value of w that minimizes J(w) takes the form of a linear combination
+of the basis functions φ(xn ) for n = 1, . . . , N .
+6.17 ( ) www Consider the sum-of-squares error function (6.39) for data having
+noisy inputs, where ν(ξ) is the distribution of the noise. Use the calculus of variations to minimize this error function with respect to the function y(x), and hence
+show that the optimal solution is given by an expansion of the form (6.40) in which
+the basis functions are given by (6.41).
+
+322
+
+6. KERNEL METHODS
+6.18 ( ) Consider a Nadaraya-Watson model with one input variable x and one target
+variable t having Gaussian components with isotropic covariances, so that the covariance matrix is given by σ 2 I where I is the unit matrix. Write down expressions
+for the conditional density p(t|x) and for the conditional mean E[t|x] and variance
+var[t|x], in terms of the kernel function k(x, xn ).
+6.19 ( ) Another viewpoint on kernel regression comes from a consideration of regression problems in which the input variables as well as the target variables are
+corrupted with additive noise. Suppose each target value tn is generated as usual
+by taking a function y(zn ) evaluated at a point zn , and adding Gaussian noise. The
+value of zn is not directly observed, however, but only a noise corrupted version
+xn = zn + ξ n where the random variable ξ is governed by some distribution g(ξ).
+Consider a set of observations {xn , tn }, where n = 1, . . . , N , together with a corresponding sum-of-squares error function deﬁned by averaging over the distribution
+of input noise to give
+1
+E=
+2
+N
+
+
+2
+
+{y(xn − ξ n ) − tn } g(ξ n ) dξn .
+
+(6.99)
+
+n=1
+
+By minimizing E with respect to the function y(z) using the calculus of variations
+(Appendix D), show that optimal solution for y(x) is given by a Nadaraya-Watson
+kernel regression solution of the form (6.45) with a kernel of the form (6.46).
+6.20 (
+
+) www
+
+Verify the results (6.66) and (6.67).
+
+6.21 ( ) www Consider a Gaussian process regression model in which the kernel
+function is deﬁned in terms of a ﬁxed set of nonlinear basis functions. Show that the
+predictive distribution is identical to the result (3.58) obtained in Section 3.3.2 for the
+Bayesian linear regression model. To do this, note that both models have Gaussian
+predictive distributions, and so it is only necessary to show that the conditional mean
+and variance are the same. For the mean, make use of the matrix identity (C.6), and
+for the variance, make use of the matrix identity (C.7).
+6.22 ( ) Consider a regression problem with N training set input vectors x1 , . . . , xN
+and L test set input vectors xN +1 , . . . , xN +L , and suppose we deﬁne a Gaussian
+process prior over functions t(x). Derive an expression for the joint predictive distribution for t(xN +1 ), . . . , t(xN +L ), given the values of t(x1 ), . . . , t(xN ). Show the
+marginal of this distribution for one of the test observations tj where N + 1 ⩽ j ⩽
+N + L is given by the usual Gaussian process regression result (6.66) and (6.67).
+6.23 ( ) www Consider a Gaussian process regression model in which the target
+variable t has dimensionality D. Write down the conditional distribution of tN +1
+for a test input vector xN +1 , given a training set of input vectors x1 , . . . , xN +1 and
+corresponding target observations t1 , . . . , tN .
+6.24 ( ) Show that a diagonal matrix W whose elements satisfy 0 < Wii < 1 is positive
+deﬁnite. Show that the sum of two positive deﬁnite matrices is itself positive deﬁnite.
+
+Exercises
+
+323
+
+6.25 ( ) www Using the Newton-Raphson formula (4.92), derive the iterative update
+formula (6.83) for ﬁnding the mode aN of the posterior distribution in the Gaussian
+process classiﬁcation model.
+6.26 ( ) Using the result (2.115), derive the expressions (6.87) and (6.88) for the mean
+and variance of the posterior distribution p(aN +1 |tN ) in the Gaussian process classiﬁcation model.
+6.27 (
+) Derive the result (6.90) for the log likelihood function in the Laplace approximation framework for Gaussian process classiﬁcation. Similarly, derive the results
+(6.91), (6.92), and (6.94) for the terms in the gradient of the log likelihood.
+
+
