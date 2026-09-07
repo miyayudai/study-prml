@@ -1,0 +1,1604 @@
+400
+
+8. GRAPHICAL MODELS
+Figure 8.40
+
+x1
+
+Example of a factor graph, which corresponds
+to the factorization (8.60).
+
+x2
+
+fa
+
+fb
+
+x3
+
+fc
+
+fd
+
+individual variables by xi , however, as in earlier discussions, these can comprise
+groups of variables (such as vectors or matrices). Each factor fs is a function of a
+corresponding set of variables xs .
+Directed graphs, whose factorization is deﬁned by (8.5), represent special cases
+of (8.59) in which the factors fs (xs ) are local conditional distributions. Similarly,
+undirected graphs, given by (8.39), are a special case in which the factors are potential functions over the maximal cliques (the normalizing coefﬁcient 1/Z can be
+viewed as a factor deﬁned over the empty set of variables).
+In a factor graph, there is a node (depicted as usual by a circle) for every variable
+in the distribution, as was the case for directed and undirected graphs. There are also
+additional nodes (depicted by small squares) for each factor fs (xs ) in the joint distribution. Finally, there are undirected links connecting each factor node to all of the
+variables nodes on which that factor depends. Consider, for example, a distribution
+that is expressed in terms of the factorization
+p(x) = fa (x1 , x2 )fb (x1 , x2 )fc (x2 , x3 )fd (x3 ).
+
+(8.60)
+
+This can be expressed by the factor graph shown in Figure 8.40. Note that there are
+two factors fa (x1 , x2 ) and fb (x1 , x2 ) that are deﬁned over the same set of variables.
+In an undirected graph, the product of two such factors would simply be lumped
+together into the same clique potential. Similarly, fc (x2 , x3 ) and fd (x3 ) could be
+combined into a single potential over x2 and x3 . The factor graph, however, keeps
+such factors explicit and so is able to convey more detailed information about the
+underlying factorization.
+x1
+
+x2
+
+x1
+
+x2
+f
+
+x1
+
+x2
+fa
+
+fb
+x3
+(a)
+
+x3
+(b)
+
+x3
+(c)
+
+Figure 8.41 (a) An undirected graph with a single clique potential ψ(x1 , x2 , x3 ). (b) A factor graph with factor
+f (x1 , x2 , x3 ) = ψ(x1 , x2 , x3 ) representing the same distribution as the undirected graph. (c) A different factor
+graph representing the same distribution, whose factors satisfy fa (x1 , x2 , x3 )fb (x1 , x2 ) = ψ(x1 , x2 , x3 ).
+
+401
+
+8.4. Inference in Graphical Models
+x1
+
+x2
+
+x1
+
+x2
+
+x1
+
+f
+
+x2
+fc
+
+fa
+x3
+(a)
+
+fb
+
+x3
+(b)
+
+x3
+(c)
+
+Figure 8.42 (a) A directed graph with the factorization p(x1 )p(x2 )p(x3 |x1 , x2 ). (b) A factor graph representing
+the same distribution as the directed graph, whose factor satisﬁes f (x1 , x2 , x3 ) = p(x1 )p(x2 )p(x3 |x1 , x2 ). (c)
+A different factor graph representing the same distribution with factors fa (x1 ) = p(x1 ), fb (x2 ) = p(x2 ) and
+fc (x1 , x2 , x3 ) = p(x3 |x1 , x2 ).
+
+Factor graphs are said to be bipartite because they consist of two distinct kinds
+of nodes, and all links go between nodes of opposite type. In general, factor graphs
+can therefore always be drawn as two rows of nodes (variable nodes at the top and
+factor nodes at the bottom) with links between the rows, as shown in the example in
+Figure 8.40. In some situations, however, other ways of laying out the graph may
+be more intuitive, for example when the factor graph is derived from a directed or
+undirected graph, as we shall see.
+If we are given a distribution that is expressed in terms of an undirected graph,
+then we can readily convert it to a factor graph. To do this, we create variable nodes
+corresponding to the nodes in the original undirected graph, and then create additional factor nodes corresponding to the maximal cliques xs . The factors fs (xs ) are
+then set equal to the clique potentials. Note that there may be several different factor
+graphs that correspond to the same undirected graph. These concepts are illustrated
+in Figure 8.41.
+Similarly, to convert a directed graph to a factor graph, we simply create variable
+nodes in the factor graph corresponding to the nodes of the directed graph, and then
+create factor nodes corresponding to the conditional distributions, and then ﬁnally
+add the appropriate links. Again, there can be multiple factor graphs all of which
+correspond to the same directed graph. The conversion of a directed graph to a
+factor graph is illustrated in Figure 8.42.
+We have already noted the importance of tree-structured graphs for performing
+efﬁcient inference. If we take a directed or undirected tree and convert it into a factor
+graph, then the result will again be a tree (in other words, the factor graph will have
+no loops, and there will be one and only one path connecting any two nodes). In
+the case of a directed polytree, conversion to an undirected graph results in loops
+due to the moralization step, whereas conversion to a factor graph again results in a
+tree, as illustrated in Figure 8.43. In fact, local cycles in a directed graph due to
+links connecting parents of a node can be removed on conversion to a factor graph
+by deﬁning the appropriate factor function, as shown in Figure 8.44.
+We have seen that multiple different factor graphs can represent the same directed or undirected graph. This allows factor graphs to be more speciﬁc about the
+
+402
+
+8. GRAPHICAL MODELS
+
+(a)
+
+(b)
+
+(c)
+
+Figure 8.43 (a) A directed polytree. (b) The result of converting the polytree into an undirected graph showing
+the creation of loops. (c) The result of converting the polytree into a factor graph, which retains the tree structure.
+
+precise form of the factorization. Figure 8.45 shows an example of a fully connected
+undirected graph along with two different factor graphs. In (b), the joint distribution is given by a general form p(x) = f (x1 , x2 , x3 ), whereas in (c), it is given
+by the more speciﬁc factorization p(x) = fa (x1 , x2 )fb (x1 , x3 )fc (x2 , x3 ). It should
+be emphasized that the factorization in (c) does not correspond to any conditional
+independence properties.
+
+8.4.4 The sum-product algorithm
+
+Section 13.3
+Figure 8.44
+
+We shall now make use of the factor graph framework to derive a powerful class
+of efﬁcient, exact inference algorithms that are applicable to tree-structured graphs.
+Here we shall focus on the problem of evaluating local marginals over nodes or
+subsets of nodes, which will lead us to the sum-product algorithm. Later we shall
+modify the technique to allow the most probable state to be found, giving rise to the
+max-sum algorithm.
+Also we shall suppose that all of the variables in the model are discrete, and
+so marginalization corresponds to performing sums. The framework, however, is
+equally applicable to linear-Gaussian models in which case marginalization involves
+integration, and we shall consider an example of this in detail when we discuss linear
+dynamical systems.
+(a) A fragment of a directed graph having a local cycle. (b) Conversion
+to a fragment of a factor
+graph having a tree structure, in which f (x1 , x2 , x3 ) =
+p(x1 )p(x2 |x1 )p(x3 |x1 , x2 ).
+
+x1
+
+x2
+
+x1
+
+x2
+
+f (x1 , x2 , x3 )
+x3
+(a)
+
+x3
+(b)
+
+403
+
+8.4. Inference in Graphical Models
+x1
+
+x2
+
+x1
+
+x2
+
+x1
+
+f (x1 , x2 , x3 )
+x3
+(a)
+
+x2
+
+fa
+
+fb
+
+fc
+
+x3
+
+x3
+
+(b)
+
+(c)
+
+Figure 8.45 (a) A fully connected undirected graph. (b) and (c) Two factor graphs each of which corresponds
+to the undirected graph in (a).
+
+There is an algorithm for exact inference on directed graphs without loops known
+as belief propagation (Pearl, 1988; Lauritzen and Spiegelhalter, 1988), and is equivalent to a special case of the sum-product algorithm. Here we shall consider only the
+sum-product algorithm because it is simpler to derive and to apply, as well as being
+more general.
+We shall assume that the original graph is an undirected tree or a directed tree or
+polytree, so that the corresponding factor graph has a tree structure. We ﬁrst convert
+the original graph into a factor graph so that we can deal with both directed and
+undirected models using the same framework. Our goal is to exploit the structure of
+the graph to achieve two things: (i) to obtain an efﬁcient, exact inference algorithm
+for ﬁnding marginals; (ii) in situations where several marginals are required to allow
+computations to be shared efﬁciently.
+We begin by considering the problem of ﬁnding the marginal p(x) for particular variable node x. For the moment, we shall suppose that all of the variables
+are hidden. Later we shall see how to modify the algorithm to incorporate evidence
+corresponding to observed variables. By deﬁnition, the marginal is obtained by summing the joint distribution over all variables except x so that
+
+p(x)
+(8.61)
+p(x) =
+x\x
+
+where x \ x denotes the set of variables in x with variable x omitted. The idea is
+to substitute for p(x) using the factor graph expression (8.59) and then interchange
+summations and products in order to obtain an efﬁcient algorithm. Consider the
+fragment of graph shown in Figure 8.46 in which we see that the tree structure of
+the graph allows us to partition the factors in the joint distribution into groups, with
+one group associated with each of the factor nodes that is a neighbour of the variable
+node x. We see that the joint distribution can be written as a product of the form
+
+Fs (x, Xs )
+(8.62)
+p(x) =
+s∈ne(x)
+
+ne(x) denotes the set of factor nodes that are neighbours of x, and Xs denotes the
+set of all variables in the subtree connected to the variable node x via the factor node
+
+8. GRAPHICAL MODELS
+Figure 8.46
+
+A fragment of a factor graph illustrating the
+evaluation of the marginal p(x).
+
+µfs →x (x)
+
+Fs (x, Xs )
+
+404
+
+fs
+
+x
+
+fs , and Fs (x, Xs ) represents the product of all the factors in the group associated
+with factor fs .
+Substituting (8.62) into (8.61) and interchanging the sums and products, we obtain
+
+ 
+Fs (x, Xs )
+p(x) =
+s∈ne(x)
+
+=
+
+
+
+Xs
+
+µfs →x (x).
+
+(8.63)
+
+s∈ne(x)
+
+Here we have introduced a set of functions µfs →x (x), deﬁned by
+
+µfs →x (x) ≡
+Fs (x, Xs )
+
+(8.64)
+
+Xs
+
+which can be viewed as messages from the factor nodes fs to the variable node x.
+We see that the required marginal p(x) is given by the product of all the incoming
+messages arriving at node x.
+In order to evaluate these messages, we again turn to Figure 8.46 and note that
+each factor Fs (x, Xs ) is described by a factor (sub-)graph and so can itself be factorized. In particular, we can write
+Fs (x, Xs ) = fs (x, x1 , . . . , xM )G1 (x1 , Xs1 ) . . . GM (xM , XsM )
+
+(8.65)
+
+where, for convenience, we have denoted the variables associated with factor fx , in
+addition to x, by x1 , . . . , xM . This factorization is illustrated in Figure 8.47. Note
+that the set of variables {x, x1 , . . . , xM } is the set of variables on which the factor
+fs depends, and so it can also be denoted xs , using the notation of (8.59).
+Substituting (8.65) into (8.64) we obtain
+
+
+ 
+
+µfs →x (x) =
+...
+fs (x, x1 , . . . , xM )
+Gm (xm , Xsm )
+x1
+
+=
+
+
+x1
+
+xM
+
+...
+
+
+xM
+
+m∈ne(fs )\x
+
+fs (x, x1 , . . . , xM )
+
+
+
+m∈ne(fs )\x
+
+Xxm
+
+µxm →fs (xm )
+
+(8.66)
+
+8.4. Inference in Graphical Models
+Figure 8.47
+
+405
+
+xM
+
+Illustration of the factorization of the subgraph associated with factor node fs .
+
+µxM →fs (xM )
+fs
+µfs →x (x)
+
+x
+
+xm
+Gm (xm , Xsm )
+
+where ne(fs ) denotes the set of variable nodes that are neighbours of the factor node
+fs , and ne(fs ) \ x denotes the same set but with node x removed. Here we have
+deﬁned the following messages from variable nodes to factor nodes
+
+µxm →fs (xm ) ≡
+Gm (xm , Xsm ).
+(8.67)
+Xsm
+
+We have therefore introduced two distinct kinds of message, those that go from factor
+nodes to variable nodes denoted µf →x (x), and those that go from variable nodes to
+factor nodes denoted µx→f (x). In each case, we see that messages passed along a
+link are always a function of the variable associated with the variable node that link
+connects to.
+The result (8.66) says that to evaluate the message sent by a factor node to a variable node along the link connecting them, take the product of the incoming messages
+along all other links coming into the factor node, multiply by the factor associated
+with that node, and then marginalize over all of the variables associated with the
+incoming messages. This is illustrated in Figure 8.47. It is important to note that
+a factor node can send a message to a variable node once it has received incoming
+messages from all other neighbouring variable nodes.
+Finally, we derive an expression for evaluating the messages from variable nodes
+to factor nodes, again by making use of the (sub-)graph factorization. From Figure 8.48, we see that term Gm (xm , Xsm ) associated with node xm is given by a
+product of terms Fl (xm , Xml ) each associated with one of the factor nodes fl that is
+linked to node xm (excluding node fs ), so that
+
+Gm (xm , Xsm ) =
+Fl (xm , Xml )
+(8.68)
+l∈ne(xm )\fs
+
+where the product is taken over all neighbours of node xm except for node fs . Note
+that each of the factors Fl (xm , Xml ) represents a subtree of the original graph of
+precisely the same kind as introduced in (8.62). Substituting (8.68) into (8.67), we
+
+406
+
+8. GRAPHICAL MODELS
+Figure 8.48
+
+Illustration of the evaluation of the message sent by a
+variable node to an adjacent factor node.
+
+fL
+
+fs
+
+xm
+fl
+Fl (xm , Xml )
+
+then obtain
+µxm →fs (xm ) =
+
+
+l∈ne(xm )\fs
+
+=
+
+
+
+
+
+
+
+Fl (xm , Xml )
+
+Xml
+
+µfl →xm (xm )
+
+(8.69)
+
+l∈ne(xm )\fs
+
+where we have used the deﬁnition (8.64) of the messages passed from factor nodes to
+variable nodes. Thus to evaluate the message sent by a variable node to an adjacent
+factor node along the connecting link, we simply take the product of the incoming
+messages along all of the other links. Note that any variable node that has only
+two neighbours performs no computation but simply passes messages through unchanged. Also, we note that a variable node can send a message to a factor node
+once it has received incoming messages from all other neighbouring factor nodes.
+Recall that our goal is to calculate the marginal for variable node x, and that this
+marginal is given by the product of incoming messages along all of the links arriving
+at that node. Each of these messages can be computed recursively in terms of other
+messages. In order to start this recursion, we can view the node x as the root of the
+tree and begin at the leaf nodes. From the deﬁnition (8.69), we see that if a leaf node
+is a variable node, then the message that it sends along its one and only link is given
+by
+(8.70)
+µx→f (x) = 1
+as illustrated in Figure 8.49(a). Similarly, if the leaf node is a factor node, we see
+from (8.66) that the message sent should take the form
+µf →x (x) = f (x)
+Figure 8.49
+
+The sum-product algorithm
+begins with messages sent
+by the leaf nodes, which depend on whether the leaf
+node is (a) a variable node,
+or (b) a factor node.
+
+µf →x (x) = f (x)
+
+µx→f (x) = 1
+x
+
+f
+(a)
+
+(8.71)
+
+x
+
+f
+(b)
+
+8.4. Inference in Graphical Models
+
+Exercise 8.20
+
+407
+
+as illustrated in Figure 8.49(b).
+At this point, it is worth pausing to summarize the particular version of the sumproduct algorithm obtained so far for evaluating the marginal p(x). We start by
+viewing the variable node x as the root of the factor graph and initiating messages
+at the leaves of the graph using (8.70) and (8.71). The message passing steps (8.66)
+and (8.69) are then applied recursively until messages have been propagated along
+every link, and the root node has received messages from all of its neighbours. Each
+node can send a message towards the root once it has received messages from all
+of its other neighbours. Once the root node has received messages from all of its
+neighbours, the required marginal can be evaluated using (8.63). We shall illustrate
+this process shortly.
+To see that each node will always receive enough messages to be able to send out
+a message, we can use a simple inductive argument as follows. Clearly, for a graph
+comprising a variable root node connected directly to several factor leaf nodes, the
+algorithm trivially involves sending messages of the form (8.71) directly from the
+leaves to the root. Now imagine building up a general graph by adding nodes one at
+a time, and suppose that for some particular graph we have a valid algorithm. When
+one more (variable or factor) node is added, it can be connected only by a single
+link because the overall graph must remain a tree, and so the new node will be a leaf
+node. It therefore sends a message to the node to which it is linked, which in turn
+will therefore receive all the messages it requires in order to send its own message
+towards the root, and so again we have a valid algorithm, thereby completing the
+proof.
+Now suppose we wish to ﬁnd the marginals for every variable node in the graph.
+This could be done by simply running the above algorithm afresh for each such node.
+However, this would be very wasteful as many of the required computations would
+be repeated. We can obtain a much more efﬁcient procedure by ‘overlaying’ these
+multiple message passing algorithms to obtain the general sum-product algorithm
+as follows. Arbitrarily pick any (variable or factor) node and designate it as the
+root. Propagate messages from the leaves to the root as before. At this point, the
+root node will have received messages from all of its neighbours. It can therefore
+send out messages to all of its neighbours. These in turn will then have received
+messages from all of their neighbours and so can send out messages along the links
+going away from the root, and so on. In this way, messages are passed outwards
+from the root all the way to the leaves. By now, a message will have passed in
+both directions across every link in the graph, and every node will have received
+a message from all of its neighbours. Again a simple inductive argument can be
+used to verify the validity of this message passing protocol. Because every variable
+node will have received messages from all of its neighbours, we can readily calculate
+the marginal distribution for every variable in the graph. The number of messages
+that have to be computed is given by twice the number of links in the graph and
+so involves only twice the computation involved in ﬁnding a single marginal. By
+comparison, if we had run the sum-product algorithm separately for each node, the
+amount of computation would grow quadratically with the size of the graph. Note
+that this algorithm is in fact independent of which node was designated as the root,
+
+408
+
+8. GRAPHICAL MODELS
+Figure 8.50
+
+Exercise 8.21
+
+The sum-product algorithm can be viewed
+purely in terms of messages sent out by factor
+nodes to other factor nodes. In this example,
+the outgoing message shown by the blue arrow
+is obtained by taking the product of all the incoming messages shown by green arrows, multiplying by the factor fs , and marginalizing over
+the variables x1 and x2 .
+
+x1
+x3
+x2
+
+fs
+
+and indeed the notion of one node having a special status was introduced only as a
+convenient way to explain the message passing protocol.
+Next suppose we wish to ﬁnd the marginal distributions p(xs ) associated with
+the sets of variables belonging to each of the factors. By a similar argument to that
+used above, it is easy to see that the marginal associated with a factor is given by the
+product of messages arriving at the factor node and the local factor at that node
+
+µxi →fs (xi )
+(8.72)
+p(xs ) = fs (xs )
+i∈ne(fs )
+
+in complete analogy with the marginals at the variable nodes. If the factors are
+parameterized functions and we wish to learn the values of the parameters using
+the EM algorithm, then these marginals are precisely the quantities we will need to
+calculate in the E step, as we shall see in detail when we discuss the hidden Markov
+model in Chapter 13.
+The message sent by a variable node to a factor node, as we have seen, is simply
+the product of the incoming messages on other links. We can if we wish view the
+sum-product algorithm in a slightly different form by eliminating messages from
+variable nodes to factor nodes and simply considering messages that are sent out by
+factor nodes. This is most easily seen by considering the example in Figure 8.50.
+So far, we have rather neglected the issue of normalization. If the factor graph
+was derived from a directed graph, then the joint distribution is already correctly normalized, and so the marginals obtained by the sum-product algorithm will similarly
+be normalized correctly. However, if we started from an undirected graph, then in
+general there will be an unknown normalization coefﬁcient 1/Z. As with the simple
+chain example of Figure 8.38, this is easily handled by working with an unnormalp(x) of the joint distribution, where p(x) = 
+p(x)/Z. We ﬁrst run the
+ized version 
+sum-product algorithm to ﬁnd the corresponding unnormalized marginals 
+p(xi ). The
+coefﬁcient 1/Z is then easily obtained by normalizing any one of these marginals,
+and this is computationally efﬁcient because the normalization is done over a single
+variable rather than over the entire set of variables as would be required to normalize
+
+p(x) directly.
+At this point, it may be helpful to consider a simple example to illustrate the
+operation of the sum-product algorithm. Figure 8.51 shows a simple 4-node factor
+
+8.4. Inference in Graphical Models
+Figure 8.51
+
+x1
+
+A simple factor graph used to illustrate the
+sum-product algorithm.
+
+x2
+
+409
+x3
+
+fa
+
+fb
+fc
+
+x4
+
+graph whose unnormalized joint distribution is given by
+
+
+p(x) = fa (x1 , x2 )fb (x2 , x3 )fc (x2 , x4 ).
+
+(8.73)
+
+In order to apply the sum-product algorithm to this graph, let us designate node x3
+as the root, in which case there are two leaf nodes x1 and x4 . Starting with the leaf
+nodes, we then have the following sequence of six messages
+µx1 →fa (x1 ) = 1
+
+fa (x1 , x2 )
+µfa →x2 (x2 ) =
+
+(8.74)
+(8.75)
+
+x1
+
+µx4 →fc (x4 ) = 1
+
+fc (x2 , x4 )
+µfc →x2 (x2 ) =
+
+(8.76)
+(8.77)
+
+x4
+
+µx2 →fb (x2 ) = µfa →x2 (x2 )µfc →x2 (x2 )
+
+fb (x2 , x3 )µx2 →fb .
+µfb →x3 (x3 ) =
+
+(8.78)
+(8.79)
+
+x2
+
+The direction of ﬂow of these messages is illustrated in Figure 8.52. Once this message propagation is complete, we can then propagate messages from the root node
+out to the leaf nodes, and these are given by
+µx3 →fb (x3 ) = 1
+
+fb (x2 , x3 )
+µfb →x2 (x2 ) =
+
+(8.80)
+(8.81)
+
+x3
+
+µx2 →fa (x2 ) = µfb →x2 (x2 )µfc →x2 (x2 )
+
+fa (x1 , x2 )µx2 →fa (x2 )
+µfa →x1 (x1 ) =
+
+(8.82)
+(8.83)
+
+x2
+
+µx2 →fc (x2 ) = µfa →x2 (x2 )µfb →x2 (x2 )
+
+fc (x2 , x4 )µx2 →fc (x2 ).
+µfc →x4 (x4 ) =
+x2
+
+(8.84)
+(8.85)
+
+410
+
+8. GRAPHICAL MODELS
+x1
+
+x2
+
+x3
+
+x1
+
+x2
+
+x4
+
+x4
+
+(a)
+
+(b)
+
+x3
+
+Figure 8.52 Flow of messages for the sum-product algorithm applied to the example graph in Figure 8.51. (a)
+From the leaf nodes x1 and x4 towards the root node x3 . (b) From the root node towards the leaf nodes.
+
+One message has now passed in each direction across each link, and we can now
+evaluate the marginals. As a simple check, let us verify that the marginal p(x2 ) is
+given by the correct expression. Using (8.63) and substituting for the messages using
+the above results, we have
+
+
+p(x2 ) = µfa →x2 (x2 )µfb →x2 (x2 )µfc →x2 (x2 )
+
+
+
+
+
+
+fa (x1 , x2 )
+fb (x2 , x3 )
+fc (x2 , x4 )
+=
+x1
+
+=
+=
+
+
+x1
+
+x2
+
+x4
+
+x1
+
+x3
+
+x4
+
+
+
+x3
+
+x4
+
+fa (x1 , x2 )fb (x2 , x3 )fc (x2 , x4 )
+
+
+p(x)
+
+(8.86)
+
+as required.
+So far, we have assumed that all of the variables in the graph are hidden. In most
+practical applications, a subset of the variables will be observed, and we wish to calculate posterior distributions conditioned on these observations. Observed nodes are
+easily handled within the sum-product algorithm as follows. Suppose we partition x
+into hidden variables h and observed variables v, and that the observed
+value of v
+. Then we simply multiply the joint distribution p(x) by i I(vi , 
+vi ),
+is denoted v
+where I(v, 
+v ) = 1 if v = 
+v and I(v, 
+v ) = 0 otherwise. This product corresponds
+) and hence is an unnormalized version of p(h|v = v
+). By runto p(h, v = v
+ning the sum-product algorithm, we can efﬁciently calculate the posterior marginals
+p(hi |v = v
+) up to a normalization coefﬁcient whose value can be found efﬁciently
+using a local computation. Any summations over variables in v then collapse into a
+single term.
+We have assumed throughout this section that we are dealing with discrete variables. However, there is nothing speciﬁc to discrete variables either in the graphical
+framework or in the probabilistic construction of the sum-product algorithm. For
+
+8.4. Inference in Graphical Models
+Table 8.1
+
+Section 13.3
+
+Example of a joint distribution over two binary variables for
+which the maximum of the joint distribution occurs for different variable values compared to the maxima of the two
+marginals.
+
+y=0
+y=1
+
+x=0
+0.3
+0.3
+
+411
+x=1
+0.4
+0.0
+
+continuous variables the summations are simply replaced by integrations. We shall
+give an example of the sum-product algorithm applied to a graph of linear-Gaussian
+variables when we consider linear dynamical systems.
+
+8.4.5 The max-sum algorithm
+The sum-product algorithm allows us to take a joint distribution p(x) expressed
+as a factor graph and efﬁciently ﬁnd marginals over the component variables. Two
+other common tasks are to ﬁnd a setting of the variables that has the largest probability and to ﬁnd the value of that probability. These can be addressed through a
+closely related algorithm called max-sum, which can be viewed as an application of
+dynamic programming in the context of graphical models (Cormen et al., 2001).
+A simple approach to ﬁnding latent variable values having high probability
+would be to run the sum-product algorithm to obtain the marginals p(xi ) for every variable, and then, for each marginal in turn, to ﬁnd the value xi that maximizes
+that marginal. However, this would give the set of values that are individually the
+most probable. In practice, we typically wish to ﬁnd the set of values that jointly
+have the largest probability, in other words the vector xmax that maximizes the joint
+distribution, so that
+(8.87)
+xmax = arg max p(x)
+x
+
+for which the corresponding value of the joint probability will be given by
+p(xmax ) = max p(x).
+x
+
+Exercise 8.27
+
+(8.88)
+
+In general, xmax is not the same as the set of xi values, as we can easily show using
+a simple example. Consider the joint distribution p(x, y) over two binary variables
+x, y ∈ {0, 1} given in Table 8.1. The joint distribution is maximized by setting x =
+1 and y = 0, corresponding the value 0.4. However, the marginal for p(x), obtained
+by summing over both values of y, is given by p(x = 0) = 0.6 and p(x = 1) = 0.4,
+and similarly the marginal for y is given by p(y = 0) = 0.7 and p(y = 1) = 0.3,
+and so the marginals are maximized by x = 0 and y = 0, which corresponds to a
+value of 0.3 for the joint distribution. In fact, it is not difﬁcult to construct examples
+for which the set of individually most probable values has probability zero under the
+joint distribution.
+We therefore seek an efﬁcient algorithm for ﬁnding the value of x that maximizes the joint distribution p(x) and that will allow us to obtain the value of the
+joint distribution at its maximum. To address the second of these problems, we shall
+simply write out the max operator in terms of its components
+max p(x) = max . . . max p(x)
+x
+
+x1
+
+xM
+
+(8.89)
+
+412
+
+8. GRAPHICAL MODELS
+where M is the total number of variables, and then substitute for p(x) using its
+expansion in terms of a product of factors. In deriving the sum-product algorithm,
+we made use of the distributive law (8.53) for multiplication. Here we make use of
+the analogous law for the max operator
+max(ab, ac) = a max(b, c)
+
+(8.90)
+
+which holds if a ⩾ 0 (as will always be the case for the factors in a graphical model).
+This allows us to exchange products with maximizations.
+Consider ﬁrst the simple example of a chain of nodes described by (8.49). The
+evaluation of the probability maximum can be written as
+1
+max · · · max [ψ1,2 (x1 , x2 ) · · · ψN −1,N (xN −1 , xN )]
+xN
+Z x1
+
+
+
+1
+max ψ1,2 (x1 , x2 ) · · · max ψN −1,N (xN −1 , xN ) .
+xN
+Z x1
+
+max p(x) =
+x
+
+=
+
+As with the calculation of marginals, we see that exchanging the max and product
+operators results in a much more efﬁcient computation, and one that is easily interpreted in terms of messages passed from node xN backwards along the chain to node
+x1 .
+We can readily generalize this result to arbitrary tree-structured factor graphs
+by substituting the expression (8.59) for the factor graph expansion into (8.89) and
+again exchanging maximizations with products. The structure of this calculation is
+identical to that of the sum-product algorithm, and so we can simply translate those
+results into the present context. In particular, suppose that we designate a particular
+variable node as the ‘root’ of the graph. Then we start a set of messages propagating
+inwards from the leaves of the tree towards the root, with each node sending its
+message towards the root once it has received all incoming messages from its other
+neighbours. The ﬁnal maximization is performed over the product of all messages
+arriving at the root node, and gives the maximum value for p(x). This could be called
+the max-product algorithm and is identical to the sum-product algorithm except that
+summations are replaced by maximizations. Note that at this stage, messages have
+been sent from leaves to the root, but not in the other direction.
+In practice, products of many small probabilities can lead to numerical underﬂow problems, and so it is convenient to work with the logarithm of the joint distribution. The logarithm is a monotonic function, so that if a > b then ln a > ln b, and
+hence the max operator and the logarithm function can be interchanged, so that
+
+
+(8.91)
+ln max p(x) = max ln p(x).
+x
+
+x
+
+The distributive property is preserved because
+max(a + b, a + c) = a + max(b, c).
+
+(8.92)
+
+Thus taking the logarithm simply has the effect of replacing the products in the
+max-product algorithm with sums, and so we obtain the max-sum algorithm. From
+
+8.4. Inference in Graphical Models
+
+413
+
+the results (8.66) and (8.69) derived earlier for the sum-product algorithm, we can
+readily write down the max-sum algorithm in terms of message passing simply by
+replacing ‘sum’ with ‘max’ and replacing products with sums of logarithms to give
+⎡
+⎤
+
+µf →x (x) =
+max ⎣ln f (x, x1 , . . . , xM ) +
+µxm →f (xm )⎦ (8.93)
+x1 ,...,xM
+
+µx→f (x) =
+
+
+
+m∈ne(fs )\x
+
+µfl →x (x).
+
+(8.94)
+
+l∈ne(x)\f
+
+The initial messages sent by the leaf nodes are obtained by analogy with (8.70) and
+(8.71) and are given by
+µx→f (x) = 0
+µf →x (x) = ln f (x)
+
+(8.95)
+(8.96)
+
+while at the root node the maximum probability can then be computed, by analogy
+with (8.63), using
+⎡
+⎤
+
+µfs →x (x)⎦ .
+(8.97)
+pmax = max ⎣
+x
+
+s∈ne(x)
+
+So far, we have seen how to ﬁnd the maximum of the joint distribution by propagating messages from the leaves to an arbitrarily chosen root node. The result will
+be the same irrespective of which node is chosen as the root. Now we turn to the
+second problem of ﬁnding the conﬁguration of the variables for which the joint distribution attains this maximum value. So far, we have sent messages from the leaves
+to the root. The process of evaluating (8.97) will also give the value xmax for the
+most probable value of the root node variable, deﬁned by
+⎡
+⎤
+
+µfs →x (x)⎦ .
+(8.98)
+xmax = arg max ⎣
+x
+
+s∈ne(x)
+
+At this point, we might be tempted simply to continue with the message passing algorithm and send messages from the root back out to the leaves, using (8.93) and
+(8.94), then apply (8.98) to all of the remaining variable nodes. However, because
+we are now maximizing rather than summing, it is possible that there may be multiple conﬁgurations of x all of which give rise to the maximum value for p(x). In
+such cases, this strategy can fail because it is possible for the individual variable
+values obtained by maximizing the product of messages at each node to belong to
+different maximizing conﬁgurations, giving an overall conﬁguration that no longer
+corresponds to a maximum.
+The problem can be resolved by adopting a rather different kind of message
+passing from the root node to the leaves. To see how this works, let us return once
+again to the simple chain example of N variables x1 , . . . , xN each having K states,
+
+414
+
+8. GRAPHICAL MODELS
+
+Figure 8.53 A lattice, or trellis, diagram showing explicitly the K possible states (one per row
+of the diagram) for each of the variables xn in the k = 1
+chain model. In this illustration K = 3. The arrow shows the direction of message passing in the
+max-product algorithm. For every state k of each
+variable xn (corresponding to column n of the diagram) the function φ(xn ) deﬁnes a unique state at
+the previous variable, indicated by the black lines. k = 2
+The two paths through the lattice correspond to
+conﬁgurations that give the global maximum of the
+joint probability distribution, and either of these
+can be found by tracing back along the black lines
+in the opposite direction to the arrow.
+
+k=3
+n−2
+
+n−1
+
+n
+
+n+1
+
+corresponding to the graph shown in Figure 8.38. Suppose we take node xN to be
+the root node. Then in the ﬁrst phase, we propagate messages from the leaf node x1
+to the root node using
+µxn →fn,n+1 (xn ) = µfn−1,n →xn (xn )
+
+µfn−1,n →xn (xn ) = max ln fn−1,n (xn−1 , xn ) + µxn−1 →f n−1,n (xn )
+xn−1
+
+which follow from applying (8.94) and (8.93) to this particular graph. The initial
+message sent from the leaf node is simply
+µx1 →f1,2 (x1 ) = 0.
+The most probable value for xN is then given by
+
+= arg max µfN −1,N →xN (xN ) .
+xmax
+N
+xN
+
+(8.99)
+
+(8.100)
+
+Now we need to determine the states of the previous variables that correspond to the
+same maximizing conﬁguration. This can be done by keeping track of which values
+of the variables gave rise to the maximum state of each variable, in other words by
+storing quantities given by
+
+φ(xn ) = arg max ln fn−1,n (xn−1 , xn ) + µxn−1 →f n−1,n (xn ) .
+(8.101)
+xn−1
+
+To understand better what is happening, it is helpful to represent the chain of variables in terms of a lattice or trellis diagram as shown in Figure 8.53. Note that this
+is not a probabilistic graphical model because the nodes represent individual states
+of variables, while each variable corresponds to a column of such states in the diagram. For each state of a given variable, there is a unique state of the previous
+variable that maximizes the probability (ties are broken either systematically or at
+random), corresponding to the function φ(xn ) given by (8.101), and this is indicated
+
+8.4. Inference in Graphical Models
+
+415
+
+by the lines connecting the nodes. Once we know the most probable value of the ﬁnal node xN , we can then simply follow the link back to ﬁnd the most probable state
+of node xN −1 and so on back to the initial node x1 . This corresponds to propagating
+a message back down the chain using
+max
+xmax
+n−1 = φ(xn )
+
+Section 13.2
+
+(8.102)
+
+and is known as back-tracking. Note that there could be several values of xn−1 all
+of which give the maximum value in (8.101). Provided we chose one of these values
+when we do the back-tracking, we are assured of a globally consistent maximizing
+conﬁguration.
+In Figure 8.53, we have indicated two paths, each of which we shall suppose
+corresponds to a global maximum of the joint probability distribution. If k = 2
+and k = 3 each represent possible values of xmax
+N , then starting from either state
+and tracing back along the black lines, which corresponds to iterating (8.102), we
+obtain a valid global maximum conﬁguration. Note that if we had run a forward
+pass of max-sum message passing followed by a backward pass and then applied
+(8.98) at each node separately, we could end up selecting some states from one path
+and some from the other path, giving an overall conﬁguration that is not a global
+maximizer. We see that it is necessary instead to keep track of the maximizing states
+during the forward pass using the functions φ(xn ) and then use back-tracking to ﬁnd
+a consistent solution.
+The extension to a general tree-structured factor graph should now be clear. If
+a message is sent from a factor node f to a variable node x, a maximization is
+performed over all other variable nodes x1 , . . . , xM that are neighbours of that factor node, using (8.93). When we perform this maximization, we keep a record of
+which values of the variables x1 , . . . , xM gave rise to the maximum. Then in the
+back-tracking step, having found xmax , we can then use these stored values to assign consistent maximizing states xmax
+, . . . , xmax
+1
+M . The max-sum algorithm, with
+back-tracking, gives an exact maximizing conﬁguration for the variables provided
+the factor graph is a tree. An important application of this technique is for ﬁnding
+the most probable sequence of hidden states in a hidden Markov model, in which
+case it is known as the Viterbi algorithm.
+As with the sum-product algorithm, the inclusion of evidence in the form of
+observed variables is straightforward. The observed variables are clamped to their
+observed values, and the maximization is performed over the remaining hidden variables. This can be shown formally by including identity functions for the observed
+variables into the factor functions, as we did for the sum-product algorithm.
+It is interesting to compare max-sum with the iterated conditional modes (ICM)
+algorithm described on page 389. Each step in ICM is computationally simpler because the ‘messages’ that are passed from one node to the next comprise a single
+value consisting of the new state of the node for which the conditional distribution
+is maximized. The max-sum algorithm is more complex because the messages are
+functions of node variables x and hence comprise a set of K values for each possible state of x. Unlike max-sum, however, ICM is not guaranteed to ﬁnd a global
+maximum even for tree-structured graphs.
+
+416
+
+8. GRAPHICAL MODELS
+
+8.4.6 Exact inference in general graphs
+The sum-product and max-sum algorithms provide efﬁcient and exact solutions
+to inference problems in tree-structured graphs. For many practical applications,
+however, we have to deal with graphs having loops.
+The message passing framework can be generalized to arbitrary graph topologies, giving an exact inference procedure known as the junction tree algorithm (Lauritzen and Spiegelhalter, 1988; Jordan, 2007). Here we give a brief outline of the
+key steps involved. This is not intended to convey a detailed understanding of the
+algorithm, but rather to give a ﬂavour of the various stages involved. If the starting
+point is a directed graph, it is ﬁrst converted to an undirected graph by moralization, whereas if starting from an undirected graph this step is not required. Next the
+graph is triangulated, which involves ﬁnding chord-less cycles containing four or
+more nodes and adding extra links to eliminate such chord-less cycles. For instance,
+in the graph in Figure 8.36, the cycle A–C–B–D–A is chord-less a link could be
+added between A and B or alternatively between C and D. Note that the joint distribution for the resulting triangulated graph is still deﬁned by a product of the same
+potential functions, but these are now considered to be functions over expanded sets
+of variables. Next the triangulated graph is used to construct a new tree-structured
+undirected graph called a join tree, whose nodes correspond to the maximal cliques
+of the triangulated graph, and whose links connect pairs of cliques that have variables in common. The selection of which pairs of cliques to connect in this way is
+important and is done so as to give a maximal spanning tree deﬁned as follows. Of
+all possible trees that link up the cliques, the one that is chosen is one for which the
+weight of the tree is largest, where the weight for a link is the number of nodes shared
+by the two cliques it connects, and the weight for the tree is the sum of the weights
+for the links. If the tree is condensed, so that any clique that is a subset of another
+clique is absorbed into the larger clique, this gives a junction tree. As a consequence
+of the triangulation step, the resulting tree satisﬁes the running intersection property,
+which means that if a variable is contained in two cliques, then it must also be contained in every clique on the path that connects them. This ensures that inference
+about variables will be consistent across the graph. Finally, a two-stage message
+passing algorithm, essentially equivalent to the sum-product algorithm, can now be
+applied to this junction tree in order to ﬁnd marginals and conditionals. Although
+the junction tree algorithm sounds complicated, at its heart is the simple idea that
+we have used already of exploiting the factorization properties of the distribution to
+allow sums and products to be interchanged so that partial summations can be performed, thereby avoiding having to work directly with the joint distribution. The
+role of the junction tree is to provide a precise and efﬁcient way to organize these
+computations. It is worth emphasizing that this is achieved using purely graphical
+operations!
+The junction tree is exact for arbitrary graphs and is efﬁcient in the sense that
+for a given graph there does not in general exist a computationally cheaper approach.
+Unfortunately, the algorithm must work with the joint distributions within each node
+(each of which corresponds to a clique of the triangulated graph) and so the computational cost of the algorithm is determined by the number of variables in the largest
+
+8.4. Inference in Graphical Models
+
+417
+
+clique and will grow exponentially with this number in the case of discrete variables.
+An important concept is the treewidth of a graph (Bodlaender, 1993), which is deﬁned in terms of the number of variables in the largest clique. In fact, it is deﬁned to
+be as one less than the size of the largest clique, to ensure that a tree has a treewidth
+of 1. Because there in general there can be multiple different junction trees that can
+be constructed from a given starting graph, the treewidth is deﬁned by the junction
+tree for which the largest clique has the fewest variables. If the treewidth of the
+original graph is high, the junction tree algorithm becomes impractical.
+
+8.4.7 Loopy belief propagation
+For many problems of practical interest, it will not be feasible to use exact inference, and so we need to exploit effective approximation methods. An important
+class of such approximations, that can broadly be called variational methods, will be
+discussed in detail in Chapter 10. Complementing these deterministic approaches is
+a wide range of sampling methods, also called Monte Carlo methods, that are based
+on stochastic numerical sampling from distributions and that will be discussed at
+length in Chapter 11.
+Here we consider one simple approach to approximate inference in graphs with
+loops, which builds directly on the previous discussion of exact inference in trees.
+The idea is simply to apply the sum-product algorithm even though there is no guarantee that it will yield good results. This approach is known as loopy belief propagation (Frey and MacKay, 1998) and is possible because the message passing rules
+(8.66) and (8.69) for the sum-product algorithm are purely local. However, because
+the graph now has cycles, information can ﬂow many times around the graph. For
+some models, the algorithm will converge, whereas for others it will not.
+In order to apply this approach, we need to deﬁne a message passing schedule.
+Let us assume that one message is passed at a time on any given link and in any
+given direction. Each message sent from a node replaces any previous message sent
+in the same direction across the same link and will itself be a function only of the
+most recent messages received by that node at previous steps of the algorithm.
+We have seen that a message can only be sent across a link from a node when
+all other messages have been received by that node across its other links. Because
+there are loops in the graph, this raises the problem of how to initiate the message
+passing algorithm. To resolve this, we suppose that an initial message given by the
+unit function has been passed across every link in each direction. Every node is then
+in a position to send a message.
+There are now many possible ways to organize the message passing schedule.
+For example, the ﬂooding schedule simultaneously passes a message across every
+link in both directions at each time step, whereas schedules that pass one message at
+a time are called serial schedules.
+Following Kschischnang et al. (2001), we will say that a (variable or factor)
+node a has a message pending on its link to a node b if node a has received any
+message on any of its other links since the last time it send a message to b. Thus,
+when a node receives a message on one of its links, this creates pending messages
+on all of its other links. Only pending messages need to be transmitted because
+
+418
+
+8. GRAPHICAL MODELS
+
+Exercise 8.29
+
+other messages would simply duplicate the previous message on the same link. For
+graphs that have a tree structure, any schedule that sends only pending messages
+will eventually terminate once a message has passed in each direction across every
+link. At this point, there are no pending messages, and the product of the received
+messages at every variable give the exact marginal. In graphs having loops, however,
+the algorithm may never terminate because there might always be pending messages,
+although in practice it is generally found to converge within a reasonable time for
+most applications. Once the algorithm has converged, or once it has been stopped
+if convergence is not observed, the (approximate) local marginals can be computed
+using the product of the most recently received incoming messages to each variable
+node or factor node on every link.
+In some applications, the loopy belief propagation algorithm can give poor results, whereas in other applications it has proven to be very effective. In particular,
+state-of-the-art algorithms for decoding certain kinds of error-correcting codes are
+equivalent to loopy belief propagation (Gallager, 1963; Berrou et al., 1993; McEliece
+et al., 1998; MacKay and Neal, 1999; Frey, 1998).
+
+8.4.8 Learning the graph structure
+In our discussion of inference in graphical models, we have assumed that the
+structure of the graph is known and ﬁxed. However, there is also interest in going beyond the inference problem and learning the graph structure itself from data
+(Friedman and Koller, 2003). This requires that we deﬁne a space of possible structures as well as a measure that can be used to score each structure.
+From a Bayesian viewpoint, we would ideally like to compute a posterior distribution over graph structures and to make predictions by averaging with respect
+to this distribution. If we have a prior p(m) over graphs indexed by m, then the
+posterior distribution is given by
+p(m|D) ∝ p(m)p(D|m)
+
+(8.103)
+
+where D is the observed data set. The model evidence p(D|m) then provides the
+score for each model. However, evaluation of the evidence involves marginalization
+over the latent variables and presents a challenging computational problem for many
+models.
+Exploring the space of structures can also be problematic. Because the number
+of different graph structures grows exponentially with the number of nodes, it is
+often necessary to resort to heuristics to ﬁnd good candidates.
+
+Exercises
+
+8.1 ( ) www By marginalizing out the variables in order, show that the representation
+(8.5) for the joint distribution of a directed graph is correctly normalized, provided
+each of the conditional distributions is normalized.
+8.2 ( ) www Show that the property of there being no directed cycles in a directed
+graph follows from the statement that there exists an ordered numbering of the nodes
+such that for each node there are no links going to a lower-numbered node.
+
+Exercises
+Table 8.2
+
+The joint distribution over three binary variables.
+
+a
+0
+0
+0
+0
+1
+1
+1
+1
+
+b
+0
+0
+1
+1
+0
+0
+1
+1
+
+c
+0
+1
+0
+1
+0
+1
+0
+1
+
+419
+p(a, b, c)
+0.192
+0.144
+0.048
+0.216
+0.192
+0.064
+0.048
+0.096
+
+8.3 ( ) Consider three binary variables a, b, c ∈ {0, 1} having the joint distribution
+given in Table 8.2. Show by direct evaluation that this distribution has the property
+that a and b are marginally dependent, so that p(a, b) = p(a)p(b), but that they
+become independent when conditioned on c, so that p(a, b|c) = p(a|c)p(b|c) for
+both c = 0 and c = 1.
+8.4 ( ) Evaluate the distributions p(a), p(b|c), and p(c|a) corresponding to the joint
+distribution given in Table 8.2. Hence show by direct evaluation that p(a, b, c) =
+p(a)p(c|a)p(b|c). Draw the corresponding directed graph.
+8.5 ( ) www Draw a directed probabilistic graphical model corresponding to the
+relevance vector machine described by (7.79) and (7.80).
+8.6 ( ) For the model shown in Figure 8.13, we have seen that the number of parameters
+required to specify the conditional distribution p(y|x1 , . . . , xM ), where xi ∈ {0, 1},
+could be reduced from 2M to M + 1 by making use of the logistic sigmoid representation (8.10). An alternative representation (Pearl, 1988) is given by
+M
+
+p(y = 1|x1 , . . . , xM ) = 1 − (1 − µ0 ) (1 − µi )xi
+
+(8.104)
+
+i=1
+
+where the parameters µi represent the probabilities p(xi = 1), and µ0 is an additional
+parameters satisfying 0 ⩽ µ0 ⩽ 1. The conditional distribution (8.104) is known as
+the noisy-OR. Show that this can be interpreted as a ‘soft’ (probabilistic) form of the
+logical OR function (i.e., the function that gives y = 1 whenever at least one of the
+xi = 1). Discuss the interpretation of µ0 .
+8.7 ( ) Using the recursion relations (8.15) and (8.16), show that the mean and covariance of the joint distribution for the graph shown in Figure 8.14 are given by (8.17)
+and (8.18), respectively.
+8.8 ( ) www
+
+Show that a ⊥⊥ b, c | d implies a ⊥
+⊥ b | d.
+
+8.9 ( ) www Using the d-separation criterion, show that the conditional distribution
+for a node x in a directed graph, conditioned on all of the nodes in the Markov
+blanket, is independent of the remaining variables in the graph.
+
+420
+
+8. GRAPHICAL MODELS
+Figure 8.54
+
+Example of a graphical model used to explore the con- a
+ditional independence properties of the head-to-head
+path a–c–b when a descendant of c, namely the node
+d, is observed.
+
+b
+
+c
+
+d
+
+8.10 ( ) Consider the directed graph shown in Figure 8.54 in which none of the variables
+is observed. Show that a ⊥
+⊥ b | ∅. Suppose we now observe the variable d. Show
+that in general a ⊥
+⊥ b | d.
+8.11 ( ) Consider the example of the car fuel system shown in Figure 8.21, and suppose
+that instead of observing the state of the fuel gauge G directly, the gauge is seen by
+the driver D who reports to us the reading on the gauge. This report is either that the
+gauge shows full D = 1 or that it shows empty D = 0. Our driver is a bit unreliable,
+as expressed through the following probabilities
+p(D = 1|G = 1) = 0.9
+p(D = 0|G = 0) = 0.9.
+
+(8.105)
+(8.106)
+
+Suppose that the driver tells us that the fuel gauge shows empty, in other words
+that we observe D = 0. Evaluate the probability that the tank is empty given only
+this observation. Similarly, evaluate the corresponding probability given also the
+observation that the battery is ﬂat, and note that this second probability is lower.
+Discuss the intuition behind this result, and relate the result to Figure 8.54.
+8.12 ( ) www Show that there are 2M (M −1)/2 distinct undirected graphs over a set of
+M distinct random variables. Draw the 8 possibilities for the case of M = 3.
+8.13 ( ) Consider the use of iterated conditional modes (ICM) to minimize the energy
+function given by (8.42). Write down an expression for the difference in the values
+of the energy associated with the two states of a particular variable xj , with all other
+variables held ﬁxed, and show that it depends only on quantities that are local to xj
+in the graph.
+8.14 ( ) Consider a particular case of the energy function given by (8.42) in which the
+coefﬁcients β = h = 0. Show that the most probable conﬁguration of the latent
+variables is given by xi = yi for all i.
+8.15 ( ) www Show that the joint distribution p(xn−1 , xn ) for two neighbouring
+nodes in the graph shown in Figure 8.38 is given by an expression of the form (8.58).
+
+Exercises
+
+421
+
+8.16 ( ) Consider the inference problem of evaluating p(xn |xN ) for the graph shown
+in Figure 8.38, for all nodes n ∈ {1, . . . , N − 1}. Show that the message passing
+algorithm discussed in Section 8.4.1 can be used to solve this efﬁciently, and discuss
+which messages are modiﬁed and in what way.
+8.17 ( ) Consider a graph of the form shown in Figure 8.38 having N = 5 nodes, in
+which nodes x3 and x5 are observed. Use d-separation to show that x2 ⊥⊥ x5 | x3 .
+Show that if the message passing algorithm of Section 8.4.1 is applied to the evaluation of p(x2 |x3 , x5 ), the result will be independent of the value of x5 .
+8.18 ( ) www Show that a distribution represented by a directed tree can trivially
+be written as an equivalent distribution over the corresponding undirected tree. Also
+show that a distribution expressed as an undirected tree can, by suitable normalization of the clique potentials, be written as a directed tree. Calculate the number of
+distinct directed trees that can be constructed from a given undirected tree.
+8.19 ( ) Apply the sum-product algorithm derived in Section 8.4.4 to the chain-ofnodes model discussed in Section 8.4.1 and show that the results (8.54), (8.55), and
+(8.57) are recovered as a special case.
+8.20 ( ) www Consider the message passing protocol for the sum-product algorithm on
+a tree-structured factor graph in which messages are ﬁrst propagated from the leaves
+to an arbitrarily chosen root node and then from the root node out to the leaves. Use
+proof by induction to show that the messages can be passed in such an order that
+at every step, each node that must send a message has received all of the incoming
+messages necessary to construct its outgoing messages.
+8.21 ( ) www Show that the marginal distributions p(xs ) over the sets of variables
+xs associated with each of the factors fx (xs ) in a factor graph can be found by ﬁrst
+running the sum-product message passing algorithm and then evaluating the required
+marginals using (8.72).
+8.22 ( ) Consider a tree-structured factor graph, in which a given subset of the variable
+nodes form a connected subgraph (i.e., any variable node of the subset is connected
+to at least one of the other variable nodes via a single factor node). Show how the
+sum-product algorithm can be used to compute the marginal distribution over that
+subset.
+8.23 ( ) www In Section 8.4.4, we showed that the marginal distribution p(xi ) for a
+variable node xi in a factor graph is given by the product of the messages arriving at
+this node from neighbouring factor nodes in the form (8.63). Show that the marginal
+p(xi ) can also be written as the product of the incoming message along any one of
+the links with the outgoing message along the same link.
+8.24 ( ) Show that the marginal distribution for the variables xs in a factor fs (xs ) in
+a tree-structured factor graph, after running the sum-product message passing algorithm, can be written as the product of the message arriving at the factor node along
+all its links, times the local factor f (xs ), in the form (8.72).
+
+422
+
+8. GRAPHICAL MODELS
+8.25 ( ) In (8.86), we veriﬁed that the sum-product algorithm run on the graph in
+Figure 8.51 with node x3 designated as the root node gives the correct marginal for
+x2 . Show that the correct marginals are obtained also for x1 and x3 . Similarly, show
+that the use of the result (8.72) after running the sum-product algorithm on this graph
+gives the correct joint distribution for x1 , x2 .
+8.26 ( ) Consider a tree-structured factor graph over discrete variables, and suppose we
+wish to evaluate the joint distribution p(xa , xb ) associated with two variables xa and
+xb that do not belong to a common factor. Deﬁne a procedure for using the sumproduct algorithm to evaluate this joint distribution in which one of the variables is
+successively clamped to each of its allowed values.
+8.27 ( ) Consider two discrete variables x and y each having three possible states, for
+example x, y ∈ {0, 1, 2}. Construct a joint distribution p(x, y) over these variables
+x that maximizes the marginal p(x), along with
+having the property that the value 
+the value 
+y that maximizes the marginal p(y), together have probability zero under
+the joint distribution, so that p(
+x, 
+y ) = 0.
+8.28 ( ) www The concept of a pending message in the sum-product algorithm for
+a factor graph was deﬁned in Section 8.4.7. Show that if the graph has one or more
+cycles, there will always be at least one pending message irrespective of how long
+the algorithm runs.
+8.29 ( ) www Show that if the sum-product algorithm is run on a factor graph with a
+tree structure (no loops), then after a ﬁnite number of messages have been sent, there
+will be no pending messages.
+
+9
+Mixture Models
+and EM
+
+Section 9.1
+
+If we deﬁne a joint distribution over observed and latent variables, the corresponding distribution of the observed variables alone is obtained by marginalization. This
+allows relatively complex marginal distributions over observed variables to be expressed in terms of more tractable joint distributions over the expanded space of
+observed and latent variables. The introduction of latent variables thereby allows
+complicated distributions to be formed from simpler components. In this chapter,
+we shall see that mixture distributions, such as the Gaussian mixture discussed in
+Section 2.3.9, can be interpreted in terms of discrete latent variables. Continuous
+latent variables will form the subject of Chapter 12.
+As well as providing a framework for building more complex probability distributions, mixture models can also be used to cluster data. We therefore begin our
+discussion of mixture distributions by considering the problem of ﬁnding clusters
+in a set of data points, which we approach ﬁrst using a nonprobabilistic technique
+called the K-means algorithm (Lloyd, 1982). Then we introduce the latent variable
+
+423
+
+424
+
+Section 9.2
+
+Section 9.3
+Section 9.4
+
+9. MIXTURE MODELS AND EM
+view of mixture distributions in which the discrete latent variables can be interpreted
+as deﬁning assignments of data points to speciﬁc components of the mixture. A general technique for ﬁnding maximum likelihood estimators in latent variable models
+is the expectation-maximization (EM) algorithm. We ﬁrst of all use the Gaussian
+mixture distribution to motivate the EM algorithm in a fairly informal way, and then
+we give a more careful treatment based on the latent variable viewpoint. We shall
+see that the K-means algorithm corresponds to a particular nonprobabilistic limit of
+EM applied to mixtures of Gaussians. Finally, we discuss EM in some generality.
+Gaussian mixture models are widely used in data mining, pattern recognition,
+machine learning, and statistical analysis. In many applications, their parameters are
+determined by maximum likelihood, typically using the EM algorithm. However, as
+we shall see there are some signiﬁcant limitations to the maximum likelihood approach, and in Chapter 10 we shall show that an elegant Bayesian treatment can be
+given using the framework of variational inference. This requires little additional
+computation compared with EM, and it resolves the principal difﬁculties of maximum likelihood while also allowing the number of components in the mixture to be
+inferred automatically from the data.
+
+9.1. K-means Clustering
+We begin by considering the problem of identifying groups, or clusters, of data points
+in a multidimensional space. Suppose we have a data set {x1 , . . . , xN } consisting
+of N observations of a random D-dimensional Euclidean variable x. Our goal is to
+partition the data set into some number K of clusters, where we shall suppose for
+the moment that the value of K is given. Intuitively, we might think of a cluster as
+comprising a group of data points whose inter-point distances are small compared
+with the distances to points outside of the cluster. We can formalize this notion by
+ﬁrst introducing a set of D-dimensional vectors µk , where k = 1, . . . , K, in which
+µk is a prototype associated with the k th cluster. As we shall see shortly, we can
+think of the µk as representing the centres of the clusters. Our goal is then to ﬁnd
+an assignment of data points to clusters, as well as a set of vectors {µk }, such that
+the sum of the squares of the distances of each data point to its closest vector µk , is
+a minimum.
+It is convenient at this point to deﬁne some notation to describe the assignment
+of data points to clusters. For each data point xn , we introduce a corresponding set
+of binary indicator variables rnk ∈ {0, 1}, where k = 1, . . . , K describing which of
+the K clusters the data point xn is assigned to, so that if data point xn is assigned to
+cluster k then rnk = 1, and rnj = 0 for j = k. This is known as the 1-of-K coding
+scheme. We can then deﬁne an objective function, sometimes called a distortion
+measure, given by
+N 
+K
+
+rnk xn − µk 2
+(9.1)
+J=
+n=1 k=1
+
+which represents the sum of the squares of the distances of each data point to its
+
+9.1. K-means Clustering
+
+Section 9.4
+
+425
+
+assigned vector µk . Our goal is to ﬁnd values for the {rnk } and the {µk } so as to
+minimize J. We can do this through an iterative procedure in which each iteration
+involves two successive steps corresponding to successive optimizations with respect
+to the rnk and the µk . First we choose some initial values for the µk . Then in the ﬁrst
+phase we minimize J with respect to the rnk , keeping the µk ﬁxed. In the second
+phase we minimize J with respect to the µk , keeping rnk ﬁxed. This two-stage
+optimization is then repeated until convergence. We shall see that these two stages
+of updating rnk and updating µk correspond respectively to the E (expectation) and
+M (maximization) steps of the EM algorithm, and to emphasize this we shall use the
+terms E step and M step in the context of the K-means algorithm.
+Consider ﬁrst the determination of the rnk . Because J in (9.1) is a linear function of rnk , this optimization can be performed easily to give a closed form solution.
+The terms involving different n are independent and so we can optimize for each
+n separately by choosing rnk to be 1 for whichever value of k gives the minimum
+value of xn − µk 2 . In other words, we simply assign the nth data point to the
+closest cluster centre. More formally, this can be expressed as
+rnk =
+
+1
+0
+
+if k = arg minj xn − µj 2
+otherwise.
+
+(9.2)
+
+Now consider the optimization of the µk with the rnk held ﬁxed. The objective
+function J is a quadratic function of µk , and it can be minimized by setting its
+derivative with respect to µk to zero giving
+2
+
+N
+
+
+rnk (xn − µk ) = 0
+
+(9.3)
+
+n=1
+
+which we can easily solve for µk to give
+
+n rnk xn
+.
+µk = 
+n rnk
+
+Exercise 9.1
+
+Appendix A
+
+(9.4)
+
+The denominator in this expression is equal to the number of points assigned to
+cluster k, and so this result has a simple interpretation, namely set µk equal to the
+mean of all of the data points xn assigned to cluster k. For this reason, the procedure
+is known as the K-means algorithm.
+The two phases of re-assigning data points to clusters and re-computing the cluster means are repeated in turn until there is no further change in the assignments (or
+until some maximum number of iterations is exceeded). Because each phase reduces
+the value of the objective function J, convergence of the algorithm is assured. However, it may converge to a local rather than global minimum of J. The convergence
+properties of the K-means algorithm were studied by MacQueen (1967).
+The K-means algorithm is illustrated using the Old Faithful data set in Figure 9.1. For the purposes of this example, we have made a linear re-scaling of the
+data, known as standardizing, such that each of the variables has zero mean and
+unit standard deviation. For this example, we have chosen K = 2, and so in this
+
+

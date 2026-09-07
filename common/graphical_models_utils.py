@@ -164,3 +164,43 @@ class SimpleFactorGraphChain:
         marginals = alpha * beta
         marginals /= np.sum(marginals, axis=1, keepdims=True)
         return marginals
+
+def noisy_or(x, mu, mu_0=0.0):
+    """
+    Noisy-OR 分布 (PRML 8.1.3節, 演習 8.6)
+    x: (M,) 0または1の二値配列
+    mu: (M,) 各原因が単独で活性化する確率
+    mu_0: 背景（自発）発症確率
+    戻り値: p(y=1|x)
+    """
+    x = np.asarray(x)
+    mu = np.asarray(mu)
+    fail_prob = (1.0 - mu_0) * np.prod((1.0 - mu) ** x)
+    return float(1.0 - fail_prob)
+
+def linear_gaussian_moments(W, b, v):
+    """
+    線形ガウスDAGにおける平均ベクトルと共分散行列の再帰的計算 (PRML 8.1.4節, 式8.15-8.18)
+    W: (D, D) 重み行列 (トポロジカル順序で下三角、対角成分は0)
+    b: (D,) バイアスベクトル
+    v: (D,) 各変数の局所ノイズ分散
+    戻り値:
+        mean: (D,) 平均ベクトル
+        cov: (D, D) 共分散行列
+    """
+    D = len(b)
+    mean = np.zeros(D)
+    for i in range(D):
+        mean[i] = np.dot(W[i], mean) + b[i]
+        
+    cov = np.zeros((D, D))
+    for j in range(D):
+        for i in range(j + 1):
+            c_val = sum(W[j, k] * cov[i, k] for k in range(j))
+            if i == j:
+                c_val += v[i]
+            cov[i, j] = c_val
+            cov[j, i] = c_val
+            
+    return mean, cov
+

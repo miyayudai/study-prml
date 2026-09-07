@@ -25,7 +25,10 @@ from .kernel_utils import (
     GaussianProcessRegressor, GaussianProcessClassifier
 )
 from .svm_rvm_utils import SupportVectorClassifier, RelevanceVectorRegressor, RelevanceVectorClassifier
-from .graphical_models_utils import SimpleFactorGraphChain
+from .graphical_models_utils import (
+    SimpleFactorGraphChain, check_d_separation, denoise_image_icm,
+    noisy_or, linear_gaussian_moments
+)
 from .mixture_em_utils import KMeans, GaussianMixtureModel, BernoulliMixtureModel
 from .variational_utils import VariationalGaussianMixture
 from .sampling_utils import rejection_sample, metropolis_hastings, gibbs_sampler_2d, hamiltonian_monte_carlo
@@ -58,7 +61,8 @@ __all__ = [
     # Ch 7: Sparse Kernel Machines
     'SupportVectorClassifier', 'RelevanceVectorRegressor', 'RelevanceVectorClassifier',
     # Ch 8: Graphical Models
-    'SimpleFactorGraphChain',
+    'SimpleFactorGraphChain', 'check_d_separation', 'denoise_image_icm',
+    'noisy_or', 'linear_gaussian_moments',
     # Ch 9: Mixture Models & EM
     'KMeans', 'GaussianMixtureModel', 'BernoulliMixtureModel',
     # Ch 10: Approximate Inference

@@ -137,6 +137,9 @@ from .ensemble import (
 from .graphical import (
     SimpleFactorGraphChain,
     check_d_separation,
+    denoise_image_icm,
+    noisy_or,
+    linear_gaussian_moments,
 )
 
 from .distributions import (
@@ -246,6 +249,9 @@ __all__ = [
     "MixtureOfLinearRegressions",
     "SimpleFactorGraphChain",
     "check_d_separation",
+    "denoise_image_icm",
+    "noisy_or",
+    "linear_gaussian_moments",
     "Gaussian1D",
     "MultivariateGaussian",
     "BetaDistribution",
