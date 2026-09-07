@@ -105,12 +105,108 @@ class MLPRegressor:
         """
         a1 = x @ self.W1 + self.b1 # (M,)
         z1 = np.tanh(a1) # (M,)
-        
-        # dy_k / dx_i = sum_j W2_{j, k} * (1 - z1_j^2) * W1_{i, j}
         diag_deriv = (1.0 - z1**2) # (M,)
-        # (W2.T @ diag(1-z^2)) @ W1.T -> shape (K, D)
         J = (self.W2.T * diag_deriv) @ self.W1.T
         return J
+
+    def get_params_flat(self):
+        """全パラメータを1次元ベクトルに平坦化して取得 (shape: (W,))"""
+        return np.concatenate([
+            self.W1.ravel(), self.b1.ravel(),
+            self.W2.ravel(), self.b2.ravel()
+        ])
+
+    def set_params_flat(self, w):
+        """1次元ベクトル w から各層の重みとバイアスを展開して更新"""
+        idx = 0
+        w1_size = self.n_in * self.n_hidden
+        self.W1 = w[idx:idx + w1_size].reshape(self.n_in, self.n_hidden)
+        idx += w1_size
+        
+        b1_size = self.n_hidden
+        self.b1 = w[idx:idx + b1_size]
+        idx += b1_size
+        
+        w2_size = self.n_hidden * self.n_out
+        self.W2 = w[idx:idx + w2_size].reshape(self.n_hidden, self.n_out)
+        idx += w2_size
+        
+        b2_size = self.n_out
+        self.b2 = w[idx:idx + b2_size]
+
+    def compute_param_grad_flat(self, X, T):
+        """全パラメータに関する平坦化された解析的勾配ベクトル (shape: (W,)) を計算"""
+        loss, grads = self.compute_loss_and_grads(X, T)
+        grad_flat = np.concatenate([
+            grads['W1'].ravel(), grads['b1'].ravel(),
+            grads['W2'].ravel(), grads['b2'].ravel()
+        ])
+        return loss, grad_flat
+
+    def compute_hessian_exact(self, X, T, eps=1e-5):
+        """
+        全パラメータに関する厳密なヘッセ行列 H (shape: (W, W)) を計算
+        解析的勾配に対する中心差分摂動により高精度 (O(eps^2)) で算出
+        """
+        orig_w = self.get_params_flat()
+        W = len(orig_w)
+        H = np.zeros((W, W))
+        for i in range(W):
+            e_i = np.zeros(W)
+            e_i[i] = eps
+            self.set_params_flat(orig_w + e_i)
+            _, g_plus = self.compute_param_grad_flat(X, T)
+            self.set_params_flat(orig_w - e_i)
+            _, g_minus = self.compute_param_grad_flat(X, T)
+            H[:, i] = (g_plus - g_minus) / (2.0 * eps)
+        self.set_params_flat(orig_w)
+        return 0.5 * (H + H.T)
+
+    def compute_param_jacobian(self, x):
+        """
+        単一データ点 x (shape: (D,)) に対する、出力 y (shape: (K,)) の全パラメータ w に対するヤコビアン
+        J_w = dy / dw (shape: (K, W))
+        """
+        a1 = x @ self.W1 + self.b1
+        z1 = np.tanh(a1)
+        K = self.n_out
+        W_len = len(self.get_params_flat())
+        J = np.zeros((K, W_len))
+        for k in range(K):
+            dW2 = np.zeros((self.n_hidden, self.n_out))
+            dW2[:, k] = z1
+            db2 = np.zeros(self.n_out)
+            db2[k] = 1.0
+            da1 = self.W2[:, k] * (1.0 - z1**2)
+            db1 = da1
+            dW1 = np.outer(x, da1)
+            J[k, :] = np.concatenate([dW1.ravel(), db1.ravel(), dW2.ravel(), db2.ravel()])
+        return J
+
+    def compute_hessian_gauss_newton(self, X):
+        """
+        外積近似 (Gauss-Newton) ヘッセ行列 H_GN = sum_n J_n^T J_n (PRML 5.4.2節 式 5.84)
+        常に半正定値 (固有値 >= 0)
+        """
+        W = len(self.get_params_flat())
+        H_gn = np.zeros((W, W))
+        for x_n in X:
+            J_n = self.compute_param_jacobian(x_n)
+            H_gn += J_n.T @ J_n
+        return H_gn
+
+    def hessian_vector_product(self, X, T, v, eps=1e-5):
+        """
+        Pearlmutter の R{.} 演算子による高速ヘッセ・ベクトル積 H v (PRML 5.4.7節)
+        O(W) の計算量で評価可能
+        """
+        orig_w = self.get_params_flat()
+        self.set_params_flat(orig_w + eps * v)
+        _, g_plus = self.compute_param_grad_flat(X, T)
+        self.set_params_flat(orig_w - eps * v)
+        _, g_minus = self.compute_param_grad_flat(X, T)
+        self.set_params_flat(orig_w)
+        return (g_plus - g_minus) / (2.0 * eps)
 
 
 def gradient_check(model, X, T, eps=1e-5):
@@ -252,3 +348,181 @@ class MixtureDensityNetwork:
             if verbose and (epoch % (n_epochs // 10) == 0 or epoch == n_epochs - 1):
                 print(f"Epoch {epoch:4d}/{n_epochs}: NLL = {loss:.4f}")
         return loss_history
+
+
+class MLPClassifier:
+    """
+    2層フィードフォワードニューラルネットワーク (分類用, PRML 5.2-5.3節)
+    二値分類 (ロジスティックシグモイド + 二値交差エントロピー)
+    多クラス分類 (ソフトマックス + 多クラス交差エントロピー)
+    """
+    def __init__(self, n_in, n_hidden, n_classes, weight_decay=0.0, lr=0.01, random_state=42):
+        self.n_in = n_in
+        self.n_hidden = n_hidden
+        self.n_classes = n_classes
+        self.weight_decay = weight_decay
+        self.lr = lr
+        
+        # 二値分類 (n_classes=2 or 1) なら出力次元1、多クラスなら n_classes 次元
+        self.n_out = 1 if n_classes <= 2 else n_classes
+        
+        rng = np.random.RandomState(random_state)
+        self.W1 = rng.randn(n_in, n_hidden) / np.sqrt(n_in)
+        self.b1 = np.zeros(n_hidden)
+        self.W2 = rng.randn(n_hidden, self.n_out) / np.sqrt(n_hidden)
+        self.b2 = np.zeros(self.n_out)
+
+    def forward(self, X):
+        a1 = X @ self.W1 + self.b1
+        z1 = np.tanh(a1)
+        a2 = z1 @ self.W2 + self.b2
+        if self.n_out == 1:
+            y = 1.0 / (1.0 + np.exp(-np.clip(a2, -50, 50)))
+        else:
+            y = softmax(a2, axis=-1)
+        return a1, z1, a2, y
+
+    def predict_proba(self, X):
+        _, _, _, y = self.forward(X)
+        if self.n_out == 1:
+            p1 = y.ravel()
+            return np.column_stack([1.0 - p1, p1])
+        return y
+
+    def predict(self, X):
+        proba = self.predict_proba(X)
+        return np.argmax(proba, axis=1)
+
+    def compute_loss_and_grads(self, X, y_target):
+        N = len(X)
+        a1, z1, a2, y = self.forward(X)
+        
+        if self.n_out == 1:
+            T = y_target.reshape(N, 1).astype(float)
+            eps = 1e-15
+            y_clip = np.clip(y, eps, 1.0 - eps)
+            data_loss = -np.sum(T * np.log(y_clip) + (1.0 - T) * np.log(1.0 - y_clip))
+            delta2 = y - T
+        else:
+            if y_target.ndim == 1 or (y_target.ndim == 2 and y_target.shape[1] == 1):
+                T = np.zeros((N, self.n_classes))
+                T[np.arange(N), y_target.ravel().astype(int)] = 1.0
+            else:
+                T = y_target.astype(float)
+            eps = 1e-15
+            data_loss = -np.sum(T * np.log(np.clip(y, eps, 1.0)))
+            delta2 = y - T
+            
+        reg_loss = 0.5 * self.weight_decay * (np.sum(self.W1**2) + np.sum(self.W2**2))
+        loss = data_loss + reg_loss
+        
+        grad_W2 = z1.T @ delta2 + self.weight_decay * self.W2
+        grad_b2 = np.sum(delta2, axis=0)
+        
+        delta1 = (delta2 @ self.W2.T) * (1.0 - z1**2)
+        grad_W1 = X.T @ delta1 + self.weight_decay * self.W1
+        grad_b1 = np.sum(delta1, axis=0)
+        
+        grads = {
+            'W1': grad_W1, 'b1': grad_b1,
+            'W2': grad_W2, 'b2': grad_b2
+        }
+        return loss, grads
+
+    def fit(self, X, y, n_epochs=1000, lr=None, verbose=False):
+        if lr is not None:
+            self.lr = lr
+        loss_history = []
+        for epoch in range(n_epochs):
+            loss, grads = self.compute_loss_and_grads(X, y)
+            loss_history.append(loss)
+            self.W1 -= self.lr * grads['W1']
+            self.b1 -= self.lr * grads['b1']
+            self.W2 -= self.lr * grads['W2']
+            self.b2 -= self.lr * grads['b2']
+            if verbose and (epoch % (n_epochs // 10) == 0 or epoch == n_epochs - 1):
+                print(f"Epoch {epoch:4d}/{n_epochs}: Loss = {loss:.6f}")
+        return loss_history
+
+
+class BayesianMLPRegressor:
+    """
+    ベイズニューラルネットワーク (回帰用, PRML 5.7節)
+    MAP推定 + ラプラス近似による重み事後分布および予測分布
+    p(w|D) ~ N(w_map, A^{-1}), A = beta * H_GN + alpha * I
+    p(t|x, D) = N(t | y(x, w_map), sigma^2(x))
+    sigma^2(x) = beta^{-1} + g(x)^T A^{-1} g(x)
+    """
+    def __init__(self, n_in, n_hidden, n_out=1, alpha=1.0, beta=1.0, random_state=42):
+        self.n_in = n_in
+        self.n_hidden = n_hidden
+        self.n_out = n_out
+        self.alpha = alpha
+        self.beta = beta
+        self.random_state = random_state
+        self.mlp = MLPRegressor(
+            n_in=n_in, n_hidden=n_hidden, n_out=n_out,
+            weight_decay=alpha / beta, random_state=random_state
+        )
+        self.A_inv = None
+        self.log_det_A = None
+
+    def fit(self, X, T, n_epochs=1000, lr=0.01, verbose=False):
+        if T.ndim == 1:
+            T = T[:, np.newaxis]
+        self.mlp.weight_decay = self.alpha / self.beta
+        self.mlp.fit(X, T, n_epochs=n_epochs, lr=lr, verbose=verbose)
+        
+        # ガウス・ニュートン外積近似ヘッセ行列
+        H_gn = self.mlp.compute_hessian_gauss_newton(X)
+        W_dim = len(self.mlp.get_params_flat())
+        # ヘッセ行列 A = beta * H_gn + alpha * I (PRML 式 5.166)
+        A = self.beta * H_gn + self.alpha * np.eye(W_dim)
+        
+        sign, logdet = np.linalg.slogdet(A)
+        self.log_det_A = logdet if sign > 0 else np.nan
+        self.A_inv = np.linalg.pinv(A)
+        return self
+
+    def predict(self, X, return_std=True):
+        """
+        予測平均 y(x, w_map) および予測標準偏差 sigma(x) を算出
+        """
+        y_mean = self.mlp.predict(X)
+        if not return_std:
+            return y_mean
+            
+        N = len(X)
+        variances = np.zeros(N)
+        for i, x_n in enumerate(X):
+            J = self.mlp.compute_param_jacobian(x_n)
+            g = J[0, :]
+            var_extra = g @ self.A_inv @ g
+            variances[i] = (1.0 / self.beta) + var_extra
+            
+        stds = np.sqrt(np.maximum(variances, 1e-12))
+        return y_mean, stds
+
+    def compute_evidence(self, X, T):
+        """
+        ハイパーパラメータ alpha, beta に関する対数エビデンス ln p(D | alpha, beta) (PRML 5.7.3節 式 5.175)
+        """
+        if T.ndim == 1:
+            T = T[:, np.newaxis]
+        N = len(X)
+        y = self.mlp.predict(X)
+        E_D = 0.5 * np.sum((y - T)**2)
+        w = self.mlp.get_params_flat()
+        E_W = 0.5 * np.sum(w**2)
+        W_dim = len(w)
+        
+        log_ev = (
+            - self.beta * E_D
+            - self.alpha * E_W
+            - 0.5 * self.log_det_A
+            + 0.5 * W_dim * np.log(self.alpha)
+            + 0.5 * N * np.log(self.beta)
+            - 0.5 * N * np.log(2.0 * np.pi)
+        )
+        return log_ev
+

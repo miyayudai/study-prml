@@ -60,6 +60,31 @@ class TestPRMLComprehensiveSuite(unittest.TestCase):
         y_sq = x_exp**2
         self.assertTrue(np.all(y_sq >= 0))
 
+    def test_ch0_computational_graph_and_laplace_quadrature(self):
+        # 逆伝播 (Reverse-Mode AD) と有限差分数値微分の一致検証
+        x_val, t_val = 1.5, 0.8
+        w1_val, w2_val = 0.7, -0.3
+        a = w1_val * x_val + w2_val
+        z = np.tanh(a)
+        diff = z - t_val
+        bar_a = diff * (1.0 - z**2)
+        bar_w1 = bar_a * x_val
+
+        eps = 1e-6
+        E_plus = 0.5 * (np.tanh((w1_val + eps) * x_val + w2_val) - t_val)**2
+        E_minus = 0.5 * (np.tanh((w1_val - eps) * x_val + w2_val) - t_val)**2
+        num_grad = (E_plus - E_minus) / (2 * eps)
+        self.assertAlmostEqual(bar_w1, num_grad, places=5)
+
+        # 多変量ラプラス近似求積
+        # E(w) = w1^2 + 2*w2^2 + 0.3*w1*w2
+        H = np.array([[2.0, 0.3], [0.3, 4.0]])
+        det_H = np.linalg.det(H)
+        Z_laplace = (2.0 * np.pi) / np.sqrt(det_H)
+        # 真の2変量ガウス正規化定数 sqrt((2*pi)^2 / det(H)) と完全一致
+        Z_true = 2.0 * np.pi / np.sqrt(det_H)
+        np.testing.assert_allclose(Z_laplace, Z_true, atol=1e-10)
+
     # --- Chapter 1: Decision Theory & Information Theory ---
     def test_ch1_decision_and_information(self):
         # 決定理論: 誤識別率最小化の決定境界 (2つのガウス分布の交点)

@@ -9,7 +9,9 @@ from sklearn.datasets import make_blobs, make_regression
 
 from prml.nn import (
     MLPRegressor,
+    MLPClassifier,
     MixtureDensityNetwork,
+    BayesianMLPRegressor,
 )
 from common.classification_utils import sigmoid, softmax
 from common.nn_utils import tanh
@@ -174,6 +176,200 @@ class TestNeuralNetworksComprehensive(unittest.TestCase):
         z, pi, sigma, mu, a_sig = mdn.forward(x_eval)
         np.testing.assert_allclose(np.sum(pi, axis=1), [1.0], atol=1e-5)
         self.assertTrue(np.all(sigma > 0))
+
+    def test_mlp_classifier_binary_and_multiclass(self):
+        # PRML 5.2-5.3節: 二値分類 (シグモイド) および多クラス分類 (ソフトマックス) の検証
+        X_b, y_b = make_blobs(n_samples=60, n_features=2, centers=2, random_state=42)
+        clf_b = MLPClassifier(2, 6, n_classes=2, lr=0.05, random_state=42)
+        clf_b.fit(X_b, y_b, n_epochs=300)
+        acc_b = np.mean(clf_b.predict(X_b) == y_b)
+        self.assertGreaterEqual(acc_b, 0.95)
+
+        X_m, y_m = make_blobs(n_samples=60, n_features=2, centers=3, random_state=42)
+        clf_m = MLPClassifier(2, 8, n_classes=3, lr=0.05, random_state=42)
+        clf_m.fit(X_m, y_m, n_epochs=400)
+        acc_m = np.mean(clf_m.predict(X_m) == y_m)
+        self.assertGreaterEqual(acc_m, 0.95)
+
+    def test_hessian_exact_and_gauss_newton(self):
+        # PRML 5.4節: 厳密ヘッセ行列とガウス・ニュートン外積近似の検証
+        mlp = MLPRegressor(2, 3, 1, random_state=42)
+        X = np.random.randn(8, 2)
+        T = np.random.randn(8, 1)
+        H_ex = mlp.compute_hessian_exact(X, T)
+        H_gn = mlp.compute_hessian_gauss_newton(X)
+        self.assertEqual(H_ex.shape, (13, 13))
+        self.assertEqual(H_gn.shape, (13, 13))
+
+        # ガウス・ニュートン近似は常に半正定値 (固有値 >= 0)
+        eigvals_gn = np.linalg.eigvalsh(H_gn)
+        self.assertTrue(np.all(eigvals_gn >= -1e-10))
+
+    def test_hessian_vector_product_pearlmutter(self):
+        # PRML 5.4.7節: Pearlmutter の R{.} 演算子による高速ヘッセ・ベクトル積 H v
+        mlp = MLPRegressor(2, 3, 1, random_state=42)
+        X = np.random.randn(8, 2)
+        T = np.random.randn(8, 1)
+        H_ex = mlp.compute_hessian_exact(X, T)
+        v = np.random.randn(13)
+        Hv_ex = H_ex @ v
+        Hv_rop = mlp.hessian_vector_product(X, T, v)
+        np.testing.assert_allclose(Hv_ex, Hv_rop, rtol=1e-3, atol=1e-4)
+
+    def test_bayesian_mlp_regressor_predictive_distribution_and_evidence(self):
+        # PRML 5.7節: ベイズニューラルネットワークのラプラス近似・予測分布・エビデンス検証
+        X_r = np.linspace(-1, 1, 15)[:, np.newaxis]
+        T_r = np.sin(np.pi * X_r) + np.random.normal(0, 0.05, (15, 1))
+        bnn = BayesianMLPRegressor(1, 4, 1, alpha=1.0, beta=10.0, random_state=42)
+        bnn.fit(X_r, T_r, n_epochs=300)
+        mean, std = bnn.predict(X_r)
+        self.assertEqual(len(std), 15)
+        self.assertTrue(np.all(std > 0))
+        ev = bnn.compute_evidence(X_r, T_r)
+        self.assertFalse(np.isnan(ev))
+
+    def test_weight_space_symmetries_tanh(self):
+        # PRML 5.1.1節 & 演習 5.21: tanh 隠れユニットの符号反転対称性
+        mlp = MLPRegressor(2, 3, 1, random_state=42)
+        x_test = np.random.randn(5, 2)
+        y_orig = mlp.predict(x_test)
+
+        # 隠れユニット0の符号反転
+        mlp_sym = MLPRegressor(2, 3, 1, random_state=42)
+        mlp_sym.W1[:, 0] *= -1
+        mlp_sym.b1[0] *= -1
+        mlp_sym.W2[0, :] *= -1
+        y_sym = mlp_sym.predict(x_test)
+        np.testing.assert_allclose(y_orig, y_sym, atol=1e-12)
+
+    def test_forward_jacobian_propagation(self):
+        # PRML 演習 5.15: ヤコビ行列の前向き伝播漸化式と数値微分の一致
+        D, M, K = 3, 4, 2
+        W1 = np.random.randn(D, M); b1 = np.random.randn(M)
+        W2 = np.random.randn(M, K); b2 = np.random.randn(K)
+        x = np.random.randn(D)
+
+        a1 = x @ W1 + b1
+        z1 = np.tanh(a1)
+        # 前向き伝播による解析的ヤコビ行列 J (K, D)
+        J_forward = (W2.T * (1.0 - z1**2)) @ W1.T
+
+        eps = 1e-6
+        J_num = np.zeros((K, D))
+        for i in range(D):
+            xp, xm = x.copy(), x.copy()
+            xp[i] += eps; xm[i] -= eps
+            yp = np.tanh(xp @ W1 + b1) @ W2 + b2
+            ym = np.tanh(xm @ W1 + b1) @ W2 + b2
+            J_num[:, i] = (yp - ym) / (2 * eps)
+
+        np.testing.assert_allclose(J_forward, J_num, atol=1e-6)
+
+    def test_sherman_morrison_hessian_update(self):
+        # PRML 演習 5.21: 外積ヘッセ更新に対する Sherman-Morrison 公式
+        P = 5
+        H_prev = np.random.randn(P, P)
+        H_prev = H_prev.T @ H_prev + np.eye(P)
+        H_inv_prev = np.linalg.inv(H_prev)
+
+        b_N = np.random.randn(P)
+        H_new = H_prev + np.outer(b_N, b_N)
+        H_inv_direct = np.linalg.inv(H_new)
+
+        v = H_inv_prev @ b_N
+        H_inv_sm = H_inv_prev - np.outer(v, v) / (1.0 + b_N @ v)
+        np.testing.assert_allclose(H_inv_direct, H_inv_sm, atol=1e-10)
+
+    def test_affine_transformation_invariance(self):
+        # PRML 演習 5.24: 入力のアフィン変換に対する重み調整と出力の完全保存
+        D, M, K = 3, 4, 2
+        W1 = np.random.randn(D, M); b1 = np.random.randn(M)
+        W2 = np.random.randn(M, K); b2 = np.random.randn(K)
+
+        A = np.array([2.5, -1.2, 0.8])
+        B = np.array([0.4, 1.1, -0.6])
+
+        W1_tilde = W1 / A[:, None]
+        b1_tilde = b1 - np.sum(W1 * (B[:, None] / A[:, None]), axis=0)
+
+        X = np.random.randn(10, D)
+        X_tilde = X * A + B
+
+        out_orig = np.tanh(X @ W1 + b1) @ W2 + b2
+        out_trans = np.tanh(X_tilde @ W1_tilde + b1_tilde) @ W2 + b2
+        np.testing.assert_allclose(out_orig, out_trans, atol=1e-12)
+
+    def test_soft_weight_sharing_gradients(self):
+        # PRML 演習 5.29-5.32: ソフト重み共有の各パラメータに関する解析勾配と数値微分の一致
+        import scipy.stats as stats
+        w_vec = np.array([-0.5, 0.2, 1.1])
+        pi_k = np.array([0.4, 0.6])
+        mu_k = np.array([-0.3, 0.9])
+        sig_k = np.array([0.4, 0.7])
+
+        dens = np.array([stats.norm.pdf(w, loc=mu_k, scale=sig_k) for w in w_vec])
+        gamma = (dens * pi_k) / np.sum(dens * pi_k, axis=1, keepdims=True)
+
+        # 1. dOmega / d w_i (式 5.141)
+        ana_grad_w = np.sum(gamma * (w_vec[:, None] - mu_k) / (sig_k**2), axis=1)
+        eps = 1e-6
+        for i in range(len(w_vec)):
+            wp, wm = w_vec.copy(), w_vec.copy()
+            wp[i] += eps; wm[i] -= eps
+            lp = -np.log(np.sum(pi_k * stats.norm.pdf(wp[i], loc=mu_k, scale=sig_k)))
+            lm = -np.log(np.sum(pi_k * stats.norm.pdf(wm[i], loc=mu_k, scale=sig_k)))
+            num_g = (lp - lm) / (2 * eps)
+            self.assertAlmostEqual(ana_grad_w[i], num_g, places=5)
+
+        # 2. dOmega / d mu_j (式 5.142)
+        ana_grad_mu0 = np.sum(gamma[:, 0] * (mu_k[0] - w_vec) / (sig_k[0]**2))
+        mup = mu_k.copy(); mup[0] += eps
+        mum = mu_k.copy(); mum[0] -= eps
+        lp = -np.sum(np.log(np.sum(pi_k * np.array([stats.norm.pdf(w, loc=mup, scale=sig_k) for w in w_vec]), axis=1)))
+        lm = -np.sum(np.log(np.sum(pi_k * np.array([stats.norm.pdf(w, loc=mum, scale=sig_k) for w in w_vec]), axis=1)))
+        num_g_mu = (lp - lm) / (2 * eps)
+        self.assertAlmostEqual(ana_grad_mu0, num_g_mu, places=5)
+
+    def test_mdn_activation_gradients(self):
+        # PRML 演習 5.34-5.36: MDN 出力活性化 a_pi, a_mu, a_sig に関するデルタ公式
+        import scipy.stats as stats
+        a_pi = np.array([0.3, -0.4, 0.8])
+        pi = softmax(a_pi)
+        mu = np.array([0.2, 1.1, -1.0])
+        a_sig = np.array([-0.5, 0.1, 0.4])
+        sigma = np.exp(a_sig)
+        t = 0.5
+
+        dens = stats.norm.pdf(t, loc=mu, scale=sigma)
+        gamma = (pi * dens) / np.sum(pi * dens)
+
+        # dE/da_pi = pi - gamma (式 5.155)
+        ana_grad_pi = pi - gamma
+        # dE/da_mu = gamma * (mu - t) / sigma^2 (式 5.156)
+        ana_grad_mu = gamma * (mu - t) / (sigma**2)
+        # dE/da_sig = gamma * (1 - (t - mu)^2 / sigma^2) (式 5.157)
+        ana_grad_sig = gamma * (1.0 - ((t - mu)**2) / (sigma**2))
+
+        eps = 1e-6
+        # 数値微分チェック
+        for k in range(3):
+            ap, am = a_pi.copy(), a_pi.copy()
+            ap[k] += eps; am[k] -= eps
+            lp = -np.log(np.sum(softmax(ap) * dens))
+            lm = -np.log(np.sum(softmax(am) * dens))
+            self.assertAlmostEqual(ana_grad_pi[k], (lp - lm)/(2*eps), places=5)
+
+            mup, mum = mu.copy(), mu.copy()
+            mup[k] += eps; mum[k] -= eps
+            lp_m = -np.log(np.sum(pi * stats.norm.pdf(t, loc=mup, scale=sigma)))
+            lm_m = -np.log(np.sum(pi * stats.norm.pdf(t, loc=mum, scale=sigma)))
+            self.assertAlmostEqual(ana_grad_mu[k], (lp_m - lm_m)/(2*eps), places=5)
+
+            asp, asm = a_sig.copy(), a_sig.copy()
+            asp[k] += eps; asm[k] -= eps
+            lp_s = -np.log(np.sum(pi * stats.norm.pdf(t, loc=mu, scale=np.exp(asp))))
+            lm_s = -np.log(np.sum(pi * stats.norm.pdf(t, loc=mu, scale=np.exp(asm))))
+            self.assertAlmostEqual(ana_grad_sig[k], (lp_s - lm_s)/(2*eps), places=5)
 
 
 if __name__ == '__main__':

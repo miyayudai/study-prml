@@ -19,7 +19,7 @@ from .classification_utils import (
     GaussianGenerativeClassifier, LogisticRegression, MulticlassLogisticRegression,
     ProbitRegression, BayesianLogisticRegression, LaplaceApproximation
 )
-from .nn_utils import (MLPRegressor, MixtureDensityNetwork)
+from .nn_utils import (MLPRegressor, MLPClassifier, MixtureDensityNetwork, BayesianMLPRegressor)
 from .kernel_utils import (
     KernelRidgeRegression, NadarayaWatsonRegressor,
     GaussianProcessRegressor, GaussianProcessClassifier
@@ -51,7 +51,7 @@ __all__ = [
     'GaussianGenerativeClassifier', 'LogisticRegression', 'MulticlassLogisticRegression',
     'ProbitRegression', 'BayesianLogisticRegression', 'LaplaceApproximation',
     # Ch 5: Neural Networks
-    'MLPRegressor', 'MixtureDensityNetwork',
+    'MLPRegressor', 'MLPClassifier', 'MixtureDensityNetwork', 'BayesianMLPRegressor',
     # Ch 6: Kernel Methods
     'KernelRidgeRegression', 'NadarayaWatsonRegressor',
     'GaussianProcessRegressor', 'GaussianProcessClassifier',

@@ -5,10 +5,23 @@ PRML Neural Networks Module (Chapter 5)
 
 from common.nn_utils import (
     MLPRegressor,
+    MLPClassifier,
     MixtureDensityNetwork,
+    BayesianMLPRegressor,
+    gradient_check,
+    tanh,
+    dtanh,
+    softmax,
 )
 
 __all__ = [
     "MLPRegressor",
+    "MLPClassifier",
     "MixtureDensityNetwork",
+    "BayesianMLPRegressor",
+    "gradient_check",
+    "tanh",
+    "dtanh",
+    "softmax",
 ]
+
