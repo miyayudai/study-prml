@@ -1,26 +1,25 @@
 # PRML (Pattern Recognition and Machine Learning) Python Implementation
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRML Coverage](https://img.shields.io/badge/Bishop%20PRML-Chapters%200--14%20(100%25)-brightgreen.svg)](TASK.md)
-[![Tests](https://img.shields.io/badge/tests-113%20passed-success.svg)](tests/)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/tests-123%20passed-success.svg)](tests/)
+[![PRML](https://img.shields.io/badge/PRML-Complete%20All%20Chapters-brightgreen.svg)](TASK.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Christopher M. Bishop の世界的な名著 **『パターン認識と機械学習 (Pattern Recognition and Machine Learning, PRML)』** の理論、数式展開、およびアルゴリズムを Python / NumPy / SciPy によって忠実にスクラッチ実装し、インタラクティブな Jupyter Notebook と 118枚以上の高解像度可視化プロットで完全再現した学習・研究用リポジトリです。
+Christopher M. Bishop の世界的名著『**Pattern Recognition and Machine Learning (PRML)**』の全14章＋第0章（確率論の基礎補講）を、理論解説・数式展開・Pythonスクラッチ実装・可視化シミュレーション・全章演習問題（穴埋め＆証明解説）として完全実装したリポジトリです。
 
 ---
 
 ## 🌟 主な特徴
 
-1. **第0章から第14章までの完全網羅 (100% 達成)**
-   - 確率論の基礎（イェンセンの不等式、KLダイバージェンス、詳細釣り合い条件含む）から最先端のグラフィカルモデル、変分推論、MCMC/HMCサンプリング、HMM、カルマンフィルタ、アンサンブル学習まで全64冊のノートブックで網羅。
-2. **教科書図版の精緻な再現 (118+ Figures)**
-   - PRML原著に登場するグラフ（多項式フィッティング、ガウス過程回帰、潜在空間、EMステップ、混合密度ネットワーク等）を各章の `result/` ディレクトリに忠実に再現・保存。
-3. **穴埋め形式・証明ステップ付き章末演習問題 (Exercises)**
-   - 全章について、初学者がモチベーションを維持しながら自力で数式展開を追体験できる論理ステップ提示＋穴埋め形式の章末演習ノートブック（`*_Exercises.ipynb`）を完備。
-4. **体系的な Python パッケージ (`prml` / `common`)**
-   - 全てのアルゴリズムを `prml.linear`, `prml.kernel`, `prml.clustering` などのサブパッケージに整理し、scikit-learn 風の洗練された API を提供（`pip install -e .` で利用可能）。
-5. **包括的かつ高速な統合テストスイート (`tests/`)**
-   - **113件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約0.8秒で全件通過）。GitHub Actions CI による継続的自動テストも整備。
+1. **第0章〜第14章（全15章・全64冊）の完全Notebook化**
+   - 原著の全節（1.1〜1.6、2.1〜2.5...）を網羅した詳細なJupyter Notebookと、112枚を超える高精細な再現図版。
+   - 理論（数式導出・LaTeX）と実装（Pythonスクラッチコード）を一体化。
+2. **全章の演習問題（Exercises）を網羅**
+   - 穴埋め形式（`None` / `# YOUR CODE HERE` / 語句穴埋め `___`）および数値検証コードを完備。独学や演習ゼミに最適。
+3. **高品質な `prml` パッケージとしてのライブラリ化**
+   - `pip install -e .` でインストール可能。PRMLで登場する全ての基盤アルゴリズムを統一されたモダンなAPIで提供。
+4. **包括的テストスイート (123 Tests)**
+   - **123件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約0.6秒で全件通過）。GitHub Actions CI による継続的自動テストも整備。
 
 ---
 
@@ -56,7 +55,7 @@ my_PRML/
 │   ├── graphical.py      # 因子グラフ・d分離 (Ch 8)
 │   └── distributions.py  # 基礎分布・単体変換 (Ch 2)
 ├── scripts/         # ノートブック自動生成・検証用スクリプト群 (50+ scripts)
-├── tests/           # 統合・単体テストスイート (113 tests)
+├── tests/           # 統合・単体テストスイート (123 tests)
 ├── pyproject.toml   # PEP 517/621 パッケージ定義ファイル
 ├── setup.py         # セットアップスクリプト
 ├── TASK.md          # 開発要件・進捗管理ドキュメント (100% 完了)
