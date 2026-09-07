@@ -318,3 +318,177 @@ def plot_decision_boundary_2d(model, X, y, ax=None, h=0.02, title="Decision Boun
     ax.set_title(title)
     ax.grid(True, alpha=0.3)
     return ax
+
+
+class MulticlassFisherLinearDiscriminant:
+    """
+    PRML 4.1.6節 式 (4.43) - (4.48) 多クラスフィッシャー線形判別分析 (Canonical Discriminant Analysis)
+    クラス内分散 S_W とクラス間分散 S_B に対する一般化固有値問題 S_W^-1 S_B w = lambda w
+    """
+    def __init__(self, n_components=None):
+        self.n_components = n_components
+        self.W = None
+        self.class_means_ = {}
+        self.classes_ = None
+
+    def fit(self, X, y):
+        X = np.asarray(X, dtype=float)
+        y = np.asarray(y)
+        N, D = X.shape
+        self.classes_ = np.unique(y)
+        K = len(self.classes_)
+        overall_mean = np.mean(X, axis=0)
+
+        if self.n_components is None:
+            self.n_components = min(D, K - 1)
+
+        S_W = np.zeros((D, D))
+        S_B = np.zeros((D, D))
+        self.class_means_ = {}
+
+        for c in self.classes_:
+            Xc = X[y == c]
+            Nc = len(Xc)
+            mc = np.mean(Xc, axis=0)
+            self.class_means_[c] = mc
+            diff_w = Xc - mc
+            S_W += diff_w.T @ diff_w
+            diff_b = (mc - overall_mean).reshape(-1, 1)
+            S_B += Nc * (diff_b @ diff_b.T)
+
+        # 正則化による数値安定化
+        S_W += 1e-6 * np.eye(D)
+        eigenvalues, eigenvectors = np.linalg.eig(np.linalg.solve(S_W, S_B))
+        idx = np.argsort(np.real(eigenvalues))[::-1]
+        self.W = np.real(eigenvectors[:, idx[:self.n_components]])
+        return self
+
+    def project(self, X):
+        X = np.asarray(X, dtype=float)
+        return X @ self.W
+
+    def predict(self, X):
+        Z = self.project(X)
+        proj_means = {c: self.class_means_[c] @ self.W for c in self.classes_}
+        preds = []
+        for z in Z:
+            dists = [np.sum((z - proj_means[c])**2) for c in self.classes_]
+            preds.append(self.classes_[np.argmin(dists)])
+        return np.array(preds)
+
+
+class ProbitRegression:
+    """
+    PRML 4.3.5節 式 (4.114) - (4.117) プロビット回帰モデル
+    リンク関数: Phi(a) = int_{-inf}^a N(theta | 0, 1) dtheta
+    """
+    def __init__(self, max_iter=100, lr=0.05, tol=1e-5):
+        self.max_iter = max_iter
+        self.lr = lr
+        self.tol = tol
+        self.w = None
+
+    def fit(self, Phi, t):
+        Phi = np.asarray(Phi, dtype=float)
+        t = np.asarray(t, dtype=float).ravel()
+        N, M = Phi.shape
+
+        self.w = np.zeros(M)
+        for _ in range(self.max_iter):
+            w_old = self.w.copy()
+            a = Phi @ self.w
+            phi_a = stats.norm.cdf(a)
+            p_a = stats.norm.pdf(a)
+
+            phi_a = np.clip(phi_a, 1e-12, 1.0 - 1e-12)
+            # PRML 式 (4.117): 勾配
+            weights = (t - phi_a) / (phi_a * (1.0 - phi_a)) * p_a
+            grad = Phi.T @ weights
+
+            self.w += self.lr * grad
+            if np.max(np.abs(self.w - w_old)) < self.tol:
+                break
+        return self
+
+    def predict_proba(self, Phi):
+        Phi = np.asarray(Phi, dtype=float)
+        a = Phi @ self.w
+        return stats.norm.cdf(a)
+
+    def predict(self, Phi):
+        return (self.predict_proba(Phi) >= 0.5).astype(int)
+
+
+class LaplaceApproximation:
+    """
+    PRML 4.4節 式 (4.131) - (4.139) 一般ラプラス近似
+    負の対数事後分布 E(w) = -ln p(w, D) に対するモード探索とヘッセ行列 H によるガウス近似
+    """
+    def __init__(self, energy_fn, grad_fn=None, hessian_fn=None):
+        self.energy_fn = energy_fn
+        self.grad_fn = grad_fn
+        self.hessian_fn = hessian_fn
+        self.mode = None
+        self.hessian = None
+        self.cov = None
+
+    def fit(self, w_init, max_iter=200, lr=0.05, tol=1e-6):
+        w_init = np.asarray(w_init, dtype=float).ravel()
+        try:
+            from scipy.optimize import minimize
+            res = minimize(
+                self.energy_fn,
+                w_init,
+                jac=self.grad_fn,
+                method='BFGS' if self.grad_fn is not None else 'Nelder-Mead',
+                options={'maxiter': max_iter, 'gtol': tol}
+            )
+            w = res.x
+        except Exception:
+            w = w_init.copy()
+            for _ in range(max_iter):
+                w_old = w.copy()
+                if self.grad_fn is not None:
+                    g = self.grad_fn(w)
+                else:
+                    eps = 1e-5
+                    g = np.zeros_like(w)
+                    for i in range(len(w)):
+                        w_plus = w.copy(); w_plus[i] += eps
+                        w_minus = w.copy(); w_minus[i] -= eps
+                        g[i] = (self.energy_fn(w_plus) - self.energy_fn(w_minus)) / (2.0 * eps)
+                w -= lr * g
+                if np.max(np.abs(w - w_old)) < tol:
+                    break
+
+        self.mode = w
+        if self.hessian_fn is not None:
+            self.hessian = self.hessian_fn(self.mode)
+        else:
+            eps = 1e-4
+            M = len(self.mode)
+            H = np.zeros((M, M))
+            for i in range(M):
+                for j in range(M):
+                    w_pp = self.mode.copy(); w_pp[i] += eps; w_pp[j] += eps
+                    w_pm = self.mode.copy(); w_pm[i] += eps; w_pm[j] -= eps
+                    w_mp = self.mode.copy(); w_mp[i] -= eps; w_mp[j] += eps
+                    w_mm = self.mode.copy(); w_mm[i] -= eps; w_mm[j] -= eps
+                    H[i, j] = (self.energy_fn(w_pp) - self.energy_fn(w_pm) - self.energy_fn(w_mp) + self.energy_fn(w_mm)) / (4.0 * eps * eps)
+            self.hessian = 0.5 * (H + H.T)
+
+        self.hessian += 1e-6 * np.eye(len(self.mode))
+        self.cov = np.linalg.inv(self.hessian)
+        return self
+
+    def log_evidence(self):
+        """PRML 式 (4.135): ln p(D) \approx -E(w_0) - 1/2 ln |H| + M/2 ln(2 pi)"""
+        M = len(self.mode)
+        _, log_det_H = np.linalg.slogdet(self.hessian)
+        return float(-self.energy_fn(self.mode) - 0.5 * log_det_H + 0.5 * M * np.log(2.0 * np.pi))
+
+    def bic(self, n_samples):
+        """PRML 式 (4.139): BIC (ベイズ情報量基準) 近似"""
+        M = len(self.mode)
+        return float(-self.energy_fn(self.mode) - 0.5 * M * np.log(n_samples))
+

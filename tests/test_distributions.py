@@ -199,6 +199,40 @@ class TestDistributions(unittest.TestCase):
         final_theta, history = rm.estimate_mean(X, init_mu=0.0)
         self.assertAlmostEqual(final_theta, mu_true, delta=0.2)
 
+    def test_jensen_inequality_and_kl_divergence(self):
+        # 第0章 0.11: 凸関数に対する Jensen 不等式 f(E[x]) <= E[f(x)] と KL(q || p) >= 0
+        x = np.random.uniform(0.5, 3.0, size=5000)
+        # f(t) = -ln(t) は凸関数
+        f_mean = -np.log(np.mean(x))
+        mean_f = np.mean(-np.log(x))
+        self.assertLessEqual(f_mean, mean_f)
+
+        # 1次元正規分布間の KL ダイバージェンスの非負性
+        mu1, s1 = 0.0, 1.0
+        mu2, s2 = 1.2, 1.5
+        kl_analytic = np.log(s2 / s1) + (s1**2 + (mu1 - mu2)**2) / (2.0 * s2**2) - 0.5
+        self.assertGreater(kl_analytic, 0.0)
+
+    def test_detailed_balance_and_mcmc_convergence(self):
+        # 第0章 0.12: 詳細釣り合い条件 p*_i T_ij = p*_j T_ji による定常分布への収束
+        p_target = np.array([0.2, 0.5, 0.3])
+        Q = np.array([[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]])
+        T = np.zeros((3, 3))
+        for i in range(3):
+            for j in range(3):
+                if i != j:
+                    acc = min(1.0, (p_target[j] * Q[j, i]) / (p_target[i] * Q[i, j]))
+                    T[i, j] = Q[i, j] * acc
+            T[i, i] = 1.0 - np.sum(T[i, :])
+
+        # 詳細釣り合い
+        for i in range(3):
+            for j in range(3):
+                self.assertAlmostEqual(p_target[i] * T[i, j], p_target[j] * T[j, i])
+
+        # 定常性 p* T = p*
+        np.testing.assert_allclose(p_target @ T, p_target)
+
 
 if __name__ == '__main__':
     unittest.main()

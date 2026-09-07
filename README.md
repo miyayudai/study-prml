@@ -3,7 +3,7 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRML Coverage](https://img.shields.io/badge/Bishop%20PRML-Chapters%200--14%20(100%25)-brightgreen.svg)](TASK.md)
-[![Tests](https://img.shields.io/badge/tests-53%20passed-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-113%20passed-success.svg)](tests/)
 
 Christopher M. Bishop の世界的な名著 **『パターン認識と機械学習 (Pattern Recognition and Machine Learning, PRML)』** の理論、数式展開、およびアルゴリズムを Python / NumPy / SciPy によって忠実にスクラッチ実装し、インタラクティブな Jupyter Notebook と 118枚以上の高解像度可視化プロットで完全再現した学習・研究用リポジトリです。
 
@@ -12,7 +12,7 @@ Christopher M. Bishop の世界的な名著 **『パターン認識と機械学�
 ## 🌟 主な特徴
 
 1. **第0章から第14章までの完全網羅 (100% 達成)**
-   - 確率論の基礎から最先端のグラフィカルモデル、変分推論、MCMC/HMCサンプリング、HMM、カルマンフィルタ、アンサンブル学習まで全65冊のノートブックで網羅。
+   - 確率論の基礎（イェンセンの不等式、KLダイバージェンス、詳細釣り合い条件含む）から最先端のグラフィカルモデル、変分推論、MCMC/HMCサンプリング、HMM、カルマンフィルタ、アンサンブル学習まで全65冊のノートブックで網羅。
 2. **教科書図版の精緻な再現 (118+ Figures)**
    - PRML原著に登場するグラフ（多項式フィッティング、ガウス過程回帰、潜在空間、EMステップ、混合密度ネットワーク等）を各章の `result/` ディレクトリに忠実に再現・保存。
 3. **穴埋め形式・証明ステップ付き章末演習問題 (Exercises)**
@@ -20,7 +20,7 @@ Christopher M. Bishop の世界的な名著 **『パターン認識と機械学�
 4. **体系的な Python パッケージ (`prml` / `common`)**
    - 全てのアルゴリズムを `prml.linear`, `prml.kernel`, `prml.clustering` などのサブパッケージに整理し、scikit-learn 風の洗練された API を提供（`pip install -e .` で利用可能）。
 5. **包括的かつ高速な統合テストスイート (`tests/`)**
-   - 53件の単体・統合テストにより、数理的整合性・境界条件・収束性を厳密に検証（約0.4秒で全件通過）。
+   - **113件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約0.8秒で全件通過）。GitHub Actions CI による継続的自動テストも整備。
 
 ---
 
