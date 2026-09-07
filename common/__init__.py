@@ -29,7 +29,10 @@ from .graphical_models_utils import (
     SimpleFactorGraphChain, check_d_separation, denoise_image_icm,
     noisy_or, linear_gaussian_moments
 )
-from .mixture_em_utils import KMeans, GaussianMixtureModel, BernoulliMixtureModel
+from .mixture_em_utils import (
+    KMeans, GaussianMixtureModel, BernoulliMixtureModel,
+    mixture_moments, incremental_em_update
+)
 from .variational_utils import VariationalGaussianMixture
 from .sampling_utils import rejection_sample, metropolis_hastings, gibbs_sampler_2d, hamiltonian_monte_carlo
 from .pca_ppca_utils import PCA, ProbabilisticPCA, KernelPCA
@@ -65,6 +68,7 @@ __all__ = [
     'noisy_or', 'linear_gaussian_moments',
     # Ch 9: Mixture Models & EM
     'KMeans', 'GaussianMixtureModel', 'BernoulliMixtureModel',
+    'mixture_moments', 'incremental_em_update',
     # Ch 10: Approximate Inference
     'VariationalGaussianMixture',
     # Ch 11: Sampling Methods

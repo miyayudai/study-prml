@@ -87,6 +87,25 @@ class TestPRMLPackageAPI(unittest.TestCase):
             self.assertTrue(hasattr(distributions, name), f"Missing {name} in prml.distributions")
             self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
 
+    def test_graphical_exports(self):
+        expected = [
+            "SimpleFactorGraphChain", "check_d_separation", "denoise_image_icm",
+            "noisy_or", "linear_gaussian_moments"
+        ]
+        for name in expected:
+            self.assertTrue(hasattr(graphical, name), f"Missing {name} in prml.graphical")
+            self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
+
+    def test_clustering_exports(self):
+        expected = [
+            "KMeans", "GaussianMixtureModel", "BernoulliMixtureModel",
+            "VariationalGaussianMixture", "mixture_moments", "incremental_em_update"
+        ]
+        for name in expected:
+            self.assertTrue(hasattr(clustering, name), f"Missing {name} in prml.clustering")
+            self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
+
+
     def test_fit_predict_interface_consistency(self):
         # 推定器が共通の fit / predict インターフェースを持つことを検証
         estimators = [

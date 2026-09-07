@@ -207,6 +207,53 @@ class BernoulliMixtureModel:
         N, D = X.shape
         K = self.n_components
         log_joint = np.zeros((N, K))
-        for k in range(K):
-            log_joint[:, k] = X @ np.log(mu[k]) + (1.0 - X) @ np.log(1.0 - mu[k]) + np.log(self.weights_[k])
         return np.argmax(log_joint, axis=1)
+
+
+def mixture_moments(weights, means, covariances):
+    """
+    混合分布の全平均と全共分散の計算 (PRML 式 9.49, 9.50, 演習 9.12)
+    E[x] = sum_k pi_k mu_k
+    cov[x] = sum_k pi_k { Sigma_k + (mu_k - E[x])(mu_k - E[x])^T }
+    """
+    weights = np.asarray(weights)
+    means = np.asarray(means)
+    covariances = np.asarray(covariances)
+    
+    K, D = means.shape
+    overall_mean = np.sum(weights[:, np.newaxis] * means, axis=0)
+    overall_cov = np.zeros((D, D))
+    for k in range(K):
+        diff = means[k] - overall_mean
+        overall_cov += weights[k] * (covariances[k] + np.outer(diff, diff))
+        
+    return overall_mean, overall_cov
+
+
+def incremental_em_update(x_m, gamma_old_m, gamma_new_m, N_k_old, mu_old, cov_old, N_total):
+    """
+    GMM インクリメンタル EM アルゴリズムの単一データ点更新 (PRML 式 9.78, 9.79, 演習 9.26, 9.27)
+    """
+    x_m = np.asarray(x_m)
+    gamma_old_m = np.asarray(gamma_old_m)
+    gamma_new_m = np.asarray(gamma_new_m)
+    N_k_old = np.asarray(N_k_old)
+    mu_old = np.asarray(mu_old)
+    cov_old = np.asarray(cov_old)
+    
+    delta_gamma = gamma_new_m - gamma_old_m
+    N_k_new = N_k_old + delta_gamma
+    weights_new = N_k_new / N_total
+    
+    K, D = mu_old.shape
+    mu_new = np.zeros_like(mu_old)
+    cov_new = np.zeros_like(cov_old)
+    
+    for k in range(K):
+        mu_new[k] = mu_old[k] + (delta_gamma[k] / N_k_new[k]) * (x_m - mu_old[k])
+        S_old = N_k_old[k] * (cov_old[k] + np.outer(mu_old[k], mu_old[k]))
+        S_new = S_old + delta_gamma[k] * np.outer(x_m, x_m)
+        cov_new[k] = S_new / N_k_new[k] - np.outer(mu_new[k], mu_new[k])
+        
+    return N_k_new, mu_new, cov_new, weights_new
+

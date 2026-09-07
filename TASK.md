@@ -59,7 +59,7 @@ AIエージェントはこのファイルを読み込み、以下の「AIエー�
 | **第6章** カーネル法 | `6/` | 5 | 8 | 6.1〜6.27 全27問個別解説・証明・穴埋め・数値検証完備 | ✅ **完了** |
 | **第7章** 疎なカーネルマシン | `7/` | 3 | 6 | 7.1〜7.19 全19問個別解説・証明・穴埋め・数値検証完備 | ✅ **完了** |
 | **第8章** グラフィカルモデル | `8/` | 4 | 3 | 8.1〜8.29 全29問個別解説・証明・穴埋め・数値検証完備 | ✅ **完了** |
-| **第9章** 混合モデルとEM | `9/` | 4 | 6 | 全問解説・数値検証 | ✅ **完了** |
+| **第9章** 混合モデルとEM | `9/` | 4 | 6 | 9.1〜9.27 全27問個別解説・証明・穴埋め・数値検証完備 | ✅ **完了** |
 | **第10章** 近似推論法 | `10/` | 4 | 5 | 全問解説・数値検証 | ✅ **完了** |
 | **第11章** サンプリング法 | `11/` | 4 | 6 | 全問解説・数値検証 | ✅ **完了** |
 | **第12章** 連続潜在変数 | `12/` | 4 | 5 | 全問解説・数値検証 | ✅ **完了** |
@@ -206,5 +206,35 @@ AIエージェントはこのファイルを読み込み、以下の「AIエー�
       - 各変数の周辺最大化と結合確率最尤配置の決定的な乖離反例 ($p(x^*, y^*) = 0$) (8.27)
       - 閉路を含む因子グラフにおける保留中メッセージの非消滅性（Loopy BP）(8.28)
       - 木構造因子グラフにおける Sum-Product アルゴリズムの有限ステップ停止定理 (8.29)
-    - `tests/test_graphical_models.py` に Noisy-OR ゲート、周辺最頻値乖離反例、表8.2条件付き独立性、自動車燃料系モデル説明除去の4件のテストを追加し、テストスイート総数 174 件全件合格。
+24. **第9章 演習問題の完全網羅化 (`9/9_Exercises.ipynb`)**
+    - PRML原著第9章の全27問（Exercises 9.1 〜 9.27）について、各問ごとの詳細な数理解説、証明ステップ、穴埋め問題、および Python 数値検証コードを完備（全56セル実行・出力保存済み）。
+      - K-means アルゴリズムの有限回反復停止性（割り当て総数 $K^N$ の有限性と歪み尺度 $J$ の単調非増加性）(9.1)
+      - Robbins-Monro 逐次根探索法による確率的オンライン K-means 更新規則の導出 (9.2)
+      - 離散潜在変数 $\mathbf{z}$ の周辺化による混合ガウス分布 $p(\mathbf{x}) = \sum_k \pi_k \mathcal{N}(\mathbf{x}|\boldsymbol{\mu}_k, \mathbf{\Sigma}_k)$ の厳密な導出 (9.3)
+      - 事後確率最大化 (MAP) 推定における EM アルゴリズム（Eステップの不変性と Mステップの $Q + \ln p(\boldsymbol{\theta})$ 最大化）(9.4)
+      - GMM 有向グラフィカルモデル（図 9.6）における d-分離基準と潜在変数事後分布の条件付き独立積分解 $p(\mathbf{Z}|\mathbf{X}) = \prod_n p(\mathbf{z}_n|\mathbf{x}_n)$ (9.5)
+      - 共通共分散行列 $\mathbf{\Sigma}_k = \mathbf{\Sigma}$ を持つ制約付き GMM の EM 再推定式導出（加重プール共分散）(9.6)
+      - 完全データ対数尤度の最大化における各成分パラメータ独立推定と標本統計量一致 (9.7)
+      - 期待完全データ対数尤度による中心ベクトル $\boldsymbol{\mu}_k = \frac{1}{N_k}\sum_n \gamma(z_{nk})\mathbf{x}_n$ の M ステップ更新式導出 (9.8)
+      - 共分散行列 $\mathbf{\Sigma}_k$ およびラグランジュ乗数法を用いた混合比 $\pi_k = N_k / N$ の M ステップ更新式導出 (9.9)
+      - 分割ベクトル $\mathbf{x} = (\mathbf{x}_a, \mathbf{x}_b)$ に対する条件付き密度 $p(\mathbf{x}_b|\mathbf{x}_a)$ が新たな混合係数 $\pi_{k|a}$ を持つ混合分布となることの証明 (9.10)
+      - 等方性共分散極限 $\epsilon \to 0$ における GMM 事後負担率の硬い割り当て $r_{nk} \in \{0, 1\}$ への収束と K-means 歪み尺度最小化との等価性 (9.11)
+      - 混合分布における全期待値の法則 $\mathbb{E}[\mathbf{x}] = \sum_k \pi_k \boldsymbol{\mu}_k$ および全分散の法則 $\mathrm{cov}[\mathbf{x}] = \sum_k \pi_k \{ \mathbf{\Sigma}_k + (\boldsymbol{\mu}_k - \mathbb{E}[\mathbf{x}])(\boldsymbol{\mu}_k - \mathbb{E}[\mathbf{x}])^{\mathrm{T}} \}$ の導出 (9.12)
+      - 同一中心初期化 $\boldsymbol{\mu}_k = \bar{\boldsymbol{\mu}}$ におけるベルヌーイ混合モデル (BMM) の 1 反復完全退化（全中心が標本平均 $\bar{\mathbf{x}}$ に収束）(9.13)
+      - ベルヌーイ完全結合分布 $p(\mathbf{x}, \mathbf{z})$ の周辺化による BMM の再現 (9.14)
+      - ベルヌーイ混合モデルの期待完全データ対数尤度最大化による中心 $\boldsymbol{\mu}_k$ の M ステップ更新式 (9.15)
+      - ラグランジュ乗数法を用いた BMM 混合比 $\pi_k$ の M ステップ更新式導出 (9.16)
+      - 離散有界性 $0 \le p(\mathbf{x}_n|\boldsymbol{\mu}_k) \le 1$ による BMM 対数尤度の上界性（$\ln p(\mathbf{X}) \le 0$）と特異点不存在の証明 (9.17)
+      - Beta-Dirichlet 共役事前分布を導入した BMM の MAP-EM アルゴリズム導出 (9.18)
+      - 多次元多項/カテゴリカル分布混合モデル (Categorical Mixture) の EM 更新式 (9.19)
+      - ベイズ線形回帰における精度ハイパーパラメータ $\alpha = \frac{M}{\mathbf{m}_N^{\mathrm{T}}\mathbf{m}_N + \mathrm{Tr}(\mathbf{S}_N)}$ の EM 再推定式 (9.20)
+      - ベイズ線形回帰におけるノイズ精度 $\beta^{-1} = \frac{1}{N}[ \|\mathbf{t} - \mathbf{\Phi}\mathbf{m}_N\|^2 + \mathrm{Tr}(\mathbf{\Phi}^{\mathrm{T}}\mathbf{\Phi}\mathbf{S}_N) ]$ の EM 再推定式導出 (9.21)
+      - 関連ベクトルマシン (RVM) におけるハイパーパラメータ $\alpha_i = \frac{1}{m_i^2 + \Sigma_{ii}}$, $\beta$ の EM 再推定式導出 (9.22)
+      - エビデンス直接最大化法（MacKay 式 7.87-7.88）と EM アルゴリズム更新式（9.67-9.68）の不動点における形式的等価性の証明 (9.23)
+      - 変分下界 $\mathcal{L}(q, \boldsymbol{\theta})$ と KL ダイバージェンス分解恒等式 $\ln p(\mathbf{X}|\boldsymbol{\theta}) = \mathcal{L}(q, \boldsymbol{\theta}) + \mathrm{KL}(q \parallel p)$ の代数的証明 (9.24)
+      - 変分下界と対数尤度の接点勾配一致定理（$\nabla_{\boldsymbol{\theta}}\mathcal{L} = \nabla_{\boldsymbol{\theta}}\ln p$）の厳密な証明 (9.25)
+      - オンライン・インクリメンタル EM における有効点数 $N_k$ および中心ベクトル $\boldsymbol{\mu}_k$ の $O(1)$ 更新式導出 (9.26)
+      - インクリメンタル EM における共分散行列 $\mathbf{\Sigma}_k$ と混合比 $\pi_k$ のオンライン更新式導出 (9.27)
+    - `common/mixture_em_utils.py` に `mixture_moments` および `incremental_em_update` を実装し、`prml.clustering` および `common` からエクスポート。
+    - `tests/test_clustering_and_em.py` に `test_mixture_moments`、`test_incremental_em_update`、`test_gmm_tied_covariance_update`、`test_bmm_identical_initialization_collapse`、`test_variational_decomposition_elbo_and_kl`、`test_elbo_tangency_condition`、`test_rvm_em_and_direct_algebraic_equivalence` を追加、`tests/test_prml_package_api.py` に `test_clustering_exports` を追加し、全 184 テストが完全合格。
 

@@ -103,6 +103,8 @@ from .clustering import (
     GaussianMixtureModel,
     BernoulliMixtureModel,
     VariationalGaussianMixture,
+    mixture_moments,
+    incremental_em_update,
 )
 
 from .variational import (
@@ -233,6 +235,8 @@ __all__ = [
     "GaussianMixtureModel",
     "BernoulliMixtureModel",
     "VariationalGaussianMixture",
+    "mixture_moments",
+    "incremental_em_update",
     "VariationalGaussian1D",
     "jaakkola_jordan_lambda",
     "rejection_sample",
