@@ -76,8 +76,8 @@ AIエージェントはこのファイルを読み込み、以下の「AIエー�
    - すべての Jupyter Notebook について、セル実行およびプロット・出力結果の埋め込みを完了（未実行ノートブック数 0）。
 4. **Python パッケージング対応 (`pyproject.toml` / `prml/`)**
    - `pip install -e .` による開発モードインストールをサポート。`prml.linear`, `prml.clustering`, `prml.sampling` などの統一モジュールAPIを提供。
-5. **156件の網羅的ユニットテストスイート (`tests/`)**
-   - 0章から14章までの全アルゴリズム・数理特性・エッジケース・収束性・第0章確率補講（Jensen, Detailed Balance）を検証する **156件** の厳密なテストを完備。全件パス。
+5. **158件の網羅的ユニットテストスイート (`tests/`)**
+   - 0章から14章までの全アルゴリズム・数理特性・エッジケース・収束性・第0章確率補講（Jensen, Detailed Balance）を検証する **158件** の厳密なテストを完備。全件パス。
 6. **全64冊ノートブック自動整合性・規格適合性検証テスト (`tests/test_notebooks_integrity.py`)**
    - リポジトリ内の全64冊のJupyter Notebookに対して、JSON構文整合性、nbformat v4規格適合性、全15章のExercisesノートブックおよびresultディレクトリ・図版存在を自動検査するテストスイートを新設。
 7. **第0章演習問題の継続的アップデート (`0/0_Exercises.ipynb`)**

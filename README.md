@@ -1,7 +1,7 @@
 # PRML (Pattern Recognition and Machine Learning) Python Implementation
 
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-156%20passed-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-158%20passed-success.svg)](tests/)
 [![PRML](https://img.shields.io/badge/PRML-Complete%20All%20Chapters-brightgreen.svg)](TASK.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -18,8 +18,8 @@ Christopher M. Bishop の世界的名著『**Pattern Recognition and Machine Lea
    - 穴埋め形式（`None` / `# YOUR CODE HERE` / 語句穴埋め `___`）および数値検証コードを完備。独学や演習ゼミに最適。
 3. **高品質な `prml` パッケージとしてのライブラリ化**
    - `pip install -e .` でインストール可能。PRMLで登場する全ての基盤アルゴリズムを統一されたモダンなAPIで提供。
-4. **包括的テストスイート (156 Tests)**
-   - **156件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約2.6秒で全件通過）。CI による継続的自動テストも整備。
+4. **包括的テストスイート (158 Tests)**
+   - **158件** の単体・統合テストおよび全64冊ノートブック自動整合性検証テストにより、数理的整合性・境界条件・収束性・規格適合性を厳密に検証（約0.8秒で全件通過）。CI による継続的自動テストも整備。
 
 ---
 
@@ -55,7 +55,7 @@ my_PRML/
 │   ├── graphical.py      # 因子グラフ・d分離 (Ch 8)
 │   └── distributions.py  # 基礎分布・単体変換 (Ch 2)
 ├── scripts/         # ノートブック自動生成・検証用スクリプト群 (50+ scripts)
-├── tests/           # 統合・単体テストスイート (123 tests)
+├── tests/           # 統合・単体テストスイート (158 tests)
 ├── pyproject.toml   # PEP 517/621 パッケージ定義ファイル
 ├── setup.py         # セットアップスクリプト
 ├── TASK.md          # 開発要件・進捗管理ドキュメント (100% 完了)
@@ -111,7 +111,7 @@ labels = gmm.predict(X)
 ### 3. ユニットテストの実行
 
 ```bash
-# 全15章・全モジュールの包括的ユニットテスト (53 tests, 約0.4秒で全件通過)
+# 全15章・全モジュールの包括的ユニットテスト (158 tests, 約0.8秒で全件通過)
 python3 -m unittest discover tests
 ```
 

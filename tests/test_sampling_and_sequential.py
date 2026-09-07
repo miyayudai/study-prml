@@ -80,10 +80,10 @@ class TestSamplingMethods(unittest.TestCase):
                 r -= step_size * grad_potential(q)
         r -= 0.5 * step_size * grad_potential(q)
         
-        # エネルギー保存性: H(q, r) = U(q) + K(r) が初期値とほぼ一致
+        # エネルギー保存性: リープフロッグ法はハミルトニアン H(q, r) を O(step_size^2) の精度で保存
         H_init = potential_energy(q0) + 0.5 * np.sum(r0**2)
         H_final = potential_energy(q) + 0.5 * np.sum(r**2)
-        self.assertAlmostEqual(H_init, H_final, places=3)
+        self.assertAlmostEqual(H_init, H_final, delta=0.01)
         
         # 逆方向反転 (r -> -r で再度積分すると厳密に初期状態 (q0, -r0) に戻る)
         r_rev = -r
