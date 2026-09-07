@@ -4,9 +4,12 @@ Christopher M. Bishop の名著に基づくスクラッチ機械学習実装ラ�
 
 サブパッケージ構成:
 - prml.linear: 線形回帰および線形分類モデル (Ch 3, 4)
+- prml.decision: 決定理論、損失関数、ROC曲線、棄却オプション (Ch 1.5)
+- prml.information: 情報理論、シャノンエントロピー、KLダイバージェンス、相互情報量 (Ch 1.6)
 - prml.kernel: カーネル法、ガウス過程、SVM、RVM (Ch 6, 7)
 - prml.nn: ニューラルネットワーク、MDN (Ch 5)
-- prml.clustering: K-means、GMM、EMアルゴリズム、変分推論 (Ch 9, 10)
+- prml.clustering: K-means、GMM、EMアルゴリズム (Ch 9)
+- prml.variational: 変分ベイズ推論、CAVI、局所変分境界 (Ch 10)
 - prml.sampling: モンテカルロ法、MCMC、HMC (Ch 11)
 - prml.dimreduce: PCA、確率的PCA、カーネルPCA (Ch 12)
 - prml.sequential: HMM、カルマンフィルタ (Ch 13)
@@ -16,9 +19,12 @@ Christopher M. Bishop の名著に基づくスクラッチ機械学習実装ラ�
 """
 
 from . import linear
+from . import decision
+from . import information
 from . import kernel
 from . import nn
 from . import clustering
+from . import variational
 from . import sampling
 from . import dimreduce
 from . import sequential
@@ -43,6 +49,23 @@ from .linear import (
     BayesianLogisticRegression,
 )
 
+from .decision import (
+    BayesDecisionClassifier,
+    RejectOptionClassifier,
+    minkowski_loss,
+    compute_roc_curve,
+)
+
+from .information import (
+    entropy_discrete,
+    binary_entropy,
+    differential_entropy_gaussian,
+    kl_divergence_discrete,
+    kl_divergence_gaussian,
+    mutual_information_gaussian,
+    huffman_coding,
+)
+
 from .kernel import (
     KernelRidgeRegression,
     NadarayaWatsonRegressor,
@@ -63,6 +86,11 @@ from .clustering import (
     GaussianMixtureModel,
     BernoulliMixtureModel,
     VariationalGaussianMixture,
+)
+
+from .variational import (
+    VariationalGaussian1D,
+    jaakkola_jordan_lambda,
 )
 
 from .sampling import (
@@ -95,26 +123,42 @@ from .graphical import (
 )
 
 from .distributions import (
+    Gaussian1D,
+    MultivariateGaussian,
+    BetaDistribution,
+    DirichletDistribution,
+    GammaDistribution,
+    StudentsTDistribution,
+    VonMisesDistribution,
+    KernelDensityEstimator,
+    KNearestNeighborsDensity,
+    RobbinsMonro,
     simplex_to_xy,
     plot_dirichlet_contour,
+    plot_gaussian_ellipse,
+    student_t_pdf,
+    von_mises_pdf,
 )
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
 __author__ = "miyayudai"
 
 __all__ = [
     # Submodules
     "linear",
+    "decision",
+    "information",
     "kernel",
     "nn",
     "clustering",
+    "variational",
     "sampling",
     "dimreduce",
     "sequential",
     "ensemble",
     "graphical",
     "distributions",
-    # Core Models
+    # Core Models & Functions
     "LinearRegression",
     "RidgeRegression",
     "BayesianLinearRegression",
@@ -128,6 +172,17 @@ __all__ = [
     "LogisticRegression",
     "MulticlassLogisticRegression",
     "BayesianLogisticRegression",
+    "BayesDecisionClassifier",
+    "RejectOptionClassifier",
+    "minkowski_loss",
+    "compute_roc_curve",
+    "entropy_discrete",
+    "binary_entropy",
+    "differential_entropy_gaussian",
+    "kl_divergence_discrete",
+    "kl_divergence_gaussian",
+    "mutual_information_gaussian",
+    "huffman_coding",
     "KernelRidgeRegression",
     "NadarayaWatsonRegressor",
     "GaussianProcessRegressor",
@@ -141,6 +196,8 @@ __all__ = [
     "GaussianMixtureModel",
     "BernoulliMixtureModel",
     "VariationalGaussianMixture",
+    "VariationalGaussian1D",
+    "jaakkola_jordan_lambda",
     "rejection_sample",
     "metropolis_hastings",
     "gibbs_sampler_2d",
@@ -155,6 +212,19 @@ __all__ = [
     "MixtureOfLinearRegressions",
     "SimpleFactorGraphChain",
     "check_d_separation",
+    "Gaussian1D",
+    "MultivariateGaussian",
+    "BetaDistribution",
+    "DirichletDistribution",
+    "GammaDistribution",
+    "StudentsTDistribution",
+    "VonMisesDistribution",
+    "KernelDensityEstimator",
+    "KNearestNeighborsDensity",
+    "RobbinsMonro",
     "simplex_to_xy",
     "plot_dirichlet_contour",
+    "plot_gaussian_ellipse",
+    "student_t_pdf",
+    "von_mises_pdf",
 ]

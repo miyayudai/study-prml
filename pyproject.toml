@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prml"
-version = "1.1.0"
+version = "1.2.0"
 authors = [
   { name="miyayudai" },
 ]
@@ -40,3 +40,4 @@ include = ["common*", "prml*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+addopts = "-p no:launch_ros -p no:launch_testing"

@@ -77,6 +77,16 @@ class TestPRMLPackageAPI(unittest.TestCase):
             self.assertTrue(hasattr(ensemble, name), f"Missing {name} in prml.ensemble")
             self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
 
+    def test_distributions_exports(self):
+        expected = [
+            "Gaussian1D", "MultivariateGaussian", "BetaDistribution", "DirichletDistribution",
+            "GammaDistribution", "StudentsTDistribution", "VonMisesDistribution",
+            "KernelDensityEstimator", "KNearestNeighborsDensity", "RobbinsMonro"
+        ]
+        for name in expected:
+            self.assertTrue(hasattr(distributions, name), f"Missing {name} in prml.distributions")
+            self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
+
     def test_fit_predict_interface_consistency(self):
         # 推定器が共通の fit / predict インターフェースを持つことを検証
         estimators = [
