@@ -57,6 +57,7 @@ def create_ch3_exercises_notebook():
 sys.path.append(os.path.abspath('../'))
 import numpy as np
 import scipy.stats as stats
+import scipy.special as special
 import scipy.integrate as integrate
 import scipy.optimize as optimize
 
@@ -264,34 +265,33 @@ print(f"Exercise 3.4 PASSED: Analytic Ridge vs Noisy Input MC diff = {diff:.4f} 
 3. 制約が有効（境界上にある）場合、$\\lambda > 0$ かつ $\\sum_{j=1}^M |w_j|^q = \\eta$ となり、無制約の正則化最小二乗法 $\\min_{\\mathbf{w}} \\{ E_D(\\mathbf{w}) + \\frac{\\lambda}{2}\\sum_{j=1}^M |w_j|^q \\}$ の解と完全に一致する。
 4. 各 $\\eta$ に対して一意な $\\lambda$ が対応する（$\\eta$ を小さくすると制約が厳しくなり $\\lambda$ は大きくなる）。"""))
 
-    cells.append(nbf.v4.new_code_cell("""# Exercise 3.5 数値検証
+    cells.append(nbf.v4.new_code_cell("""# Exercise 3.5 数値検証 (q=2: L2制約と正則化最小二乗法の等価性)
 np.random.seed(42)
-N, M = 20, 2
+N, M = 20, 3
 Phi = np.random.randn(N, M)
 t = np.random.randn(N)
-q = 1.0 # Lasso
-eta = 0.5
+q = 2.0
+eta = 0.1  # 非制約解のノルムより小さく設定して制約を活性化 (有効化)
 
-# 1. 制約付き最適化: min E_D(w) s.t. ||w||_1 <= eta
+# 1. 制約付き最適化: min E_D(w) s.t. ||w||_2^2 <= eta
 def loss(w):
     return 0.5 * np.sum((t - Phi @ w)**2)
 
-res_con = optimize.minimize(loss, x0=[0.0, 0.0], constraints={'type': 'ineq', 'fun': lambda w: eta - np.sum(np.abs(w))})
+res_con = optimize.minimize(loss, x0=np.zeros(M), constraints={'type': 'ineq', 'fun': lambda w: eta - np.sum(w**2)})
 w_constrained = res_con.x
 
-# 2. 対応する lambda をグリッドサーチして無制約最適化と比較
-lambdas = np.linspace(1.0, 20.0, 100)
-best_diff = 1e9
-best_lambda = None
-for lam in lambdas:
-    res_uncon = optimize.minimize(lambda w: loss(w) + 0.5 * lam * np.sum(np.abs(w)), x0=[0.0, 0.0])
-    diff = np.linalg.norm(res_uncon.x - w_constrained)
-    if diff < best_diff:
-        best_diff = diff
-        best_lambda = lam
+# 2. 対応するラグランジュ乗数 lambda を方程式 ||(Phi^T Phi + lambda I)^-1 Phi^T t||^2 = eta から求解
+def f_norm(lam):
+    w = np.linalg.solve(Phi.T @ Phi + lam * np.eye(M), Phi.T @ t)
+    return np.sum(w**2) - eta
 
-assert best_diff < 0.01, f"Equivalence failed: best diff = {best_diff}"
-print(f"Exercise 3.5 PASSED: Constrained vs Penalized matched at lambda={best_lambda:.2f} (diff={best_diff:.4f})")"""))
+res_root = optimize.root_scalar(f_norm, bracket=[1e-4, 1000.0])
+lambda_exact = res_root.root
+w_ridge = np.linalg.solve(Phi.T @ Phi + lambda_exact * np.eye(M), Phi.T @ t)
+
+diff = np.linalg.norm(w_constrained - w_ridge)
+assert np.isclose(diff, 0.0, atol=1e-4), f"Equivalence failed: diff = {diff}"
+print(f"Exercise 3.5 PASSED: Constrained vs Penalized matched at lambda={lambda_exact:.4f} (diff={diff:.2e})")"""))
 
     # Exercise 3.6
     cells.append(nbf.v4.new_markdown_cell("""## Exercise 3.6
@@ -819,16 +819,16 @@ np.random.seed(42)
 N, M = 20, 3
 Phi = np.random.randn(N, M)
 t = np.random.randn(N)
-beta = 5.0
 
 # 最適な alpha, beta を探索
-eb = EvidenceApproximation().fit(Phi, t, init_alpha=2.0, init_beta=beta)
+eb = EvidenceApproximation(tol=1e-8, max_iter=200).fit(Phi, t)
 alpha_opt = eb.alpha
+beta_opt = eb.beta
 
 # 対数エビデンスの alpha に関する数値微分 (中心差分)
 eps = 1e-6
-grad_num = (bayesian_model_evidence(Phi, t, alpha_opt + eps, beta) - \
-            bayesian_model_evidence(Phi, t, alpha_opt - eps, beta)) / (2 * eps)
+grad_num = (bayesian_model_evidence(Phi, t, alpha_opt + eps, beta_opt) - \
+            bayesian_model_evidence(Phi, t, alpha_opt - eps, beta_opt)) / (2 * eps)
 
 assert abs(grad_num) < 1e-4, f"Gradient not zero: {grad_num}"
 print(f"Exercise 3.20 PASSED: Numerical derivative of log evidence at optimal alpha is {grad_num:.2e} (~0)")"""))
@@ -886,15 +886,15 @@ np.random.seed(42)
 N, M = 25, 3
 Phi = np.random.randn(N, M)
 t = np.random.randn(N)
-alpha = 2.0
 
-eb = EvidenceApproximation().fit(Phi, t, init_alpha=alpha, init_beta=3.0)
+eb = EvidenceApproximation(tol=1e-8, max_iter=200).fit(Phi, t)
+alpha_opt = eb.alpha
 beta_opt = eb.beta
 
 # 対数エビデンスの beta に関する数値微分 (中心差分)
 eps = 1e-6
-grad_beta_num = (bayesian_model_evidence(Phi, t, alpha, beta_opt + eps) - \
-                 bayesian_model_evidence(Phi, t, alpha, beta_opt - eps)) / (2 * eps)
+grad_beta_num = (bayesian_model_evidence(Phi, t, alpha_opt, beta_opt + eps) - \
+                 bayesian_model_evidence(Phi, t, alpha_opt, beta_opt - eps)) / (2 * eps)
 
 assert abs(grad_beta_num) < 1e-4, f"Gradient not zero: {grad_beta_num}"
 print(f"Exercise 3.22 PASSED: Numerical derivative w.r.t beta at optimal point is {grad_beta_num:.2e} (~0)")"""))
@@ -927,7 +927,7 @@ ng = NormalGammaLinearRegression(a0=a0, b0=b0).fit(Phi, t)
 
 # 解析的エビデンス (式 3.118)
 log_ev_analytic = -0.5 * N * np.log(2 * np.pi) + a0 * np.log(b0) - ng.a_N * np.log(ng.b_N) + \
-                  (stats.gammaln(ng.a_N) - stats.gammaln(a0)) + \
+                  (special.gammaln(ng.a_N) - special.gammaln(a0)) + \
                   0.5 * (np.linalg.slogdet(ng.S_N)[1] - np.linalg.slogdet(np.linalg.inv(ng.S0_inv))[1])
 ev_analytic = np.exp(log_ev_analytic)
 
@@ -936,7 +936,7 @@ def integrand_3d(beta, w1, w2):
     w = np.array([w1, w2])
     log_lik = -0.5 * N * np.log(2 * np.pi / beta) - 0.5 * beta * np.sum((t - Phi @ w)**2)
     log_pw = -0.5 * M * np.log(2 * np.pi / beta) + 0.5 * np.linalg.slogdet(beta * ng.S0_inv)[1] - 0.5 * beta * (w @ ng.S0_inv @ w)
-    log_pbeta = a0 * np.log(b0) - stats.gammaln(a0) + (a0 - 1) * np.log(beta) - b0 * beta
+    log_pbeta = a0 * np.log(b0) - special.gammaln(a0) + (a0 - 1) * np.log(beta) - b0 * beta
     return np.exp(log_lik + log_pw + log_pbeta)
 
 # beta について 1次元積分 (内側の w 積分は解析的)
@@ -979,11 +979,11 @@ for _ in range(10):
     log_lik = -0.5 * N * np.log(2*np.pi/beta_test) - 0.5 * beta_test * np.sum((t - Phi @ w_test)**2)
     log_prior_w = -0.5 * M * np.log(2*np.pi/beta_test) + 0.5 * np.linalg.slogdet(beta_test * ng.S0_inv)[1] - \
                   0.5 * beta_test * (w_test @ ng.S0_inv @ w_test)
-    log_prior_beta = a0 * np.log(b0) - stats.gammaln(a0) + (a0 - 1) * np.log(beta_test) - b0 * beta_test
+    log_prior_beta = a0 * np.log(b0) - special.gammaln(a0) + (a0 - 1) * np.log(beta_test) - b0 * beta_test
 
     log_post_w = -0.5 * M * np.log(2*np.pi/beta_test) + 0.5 * np.linalg.slogdet(beta_test * np.linalg.inv(ng.S_N))[1] - \
                  0.5 * beta_test * ((w_test - ng.m_N) @ np.linalg.inv(ng.S_N) @ (w_test - ng.m_N))
-    log_post_beta = ng.a_N * np.log(ng.b_N) - stats.gammaln(ng.a_N) + (ng.a_N - 1) * np.log(beta_test) - ng.b_N * beta_test
+    log_post_beta = ng.a_N * np.log(ng.b_N) - special.gammaln(ng.a_N) + (ng.a_N - 1) * np.log(beta_test) - ng.b_N * beta_test
 
     ratio = np.exp((log_lik + log_prior_w + log_prior_beta) - (log_post_w + log_post_beta))
     ratios.append(ratio)

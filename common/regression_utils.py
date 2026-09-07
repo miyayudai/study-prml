@@ -333,9 +333,11 @@ SequentialLinearRegression = LeastMeanSquares
 
 class BayesianLinearRegression:
     """PRML 3.3節 式 (3.49) - (3.60) に基づくベイズ線形回帰モデル"""
-    def __init__(self, alpha=2.0, beta=25.0):
-        self.alpha = float(alpha)
+    def __init__(self, alpha=2.0, beta=25.0, m0=None, S0_inv=None):
+        self.alpha = float(alpha) if alpha is not None else None
         self.beta = float(beta)
+        self.m0 = np.asarray(m0, dtype=float) if m0 is not None else None
+        self.S0_inv = np.asarray(S0_inv, dtype=float) if S0_inv is not None else None
         self.m_N = None
         self.S_N = None
         self.Phi = None
@@ -344,14 +346,18 @@ class BayesianLinearRegression:
     def fit(self, Phi, t):
         Phi = np.asarray(Phi, dtype=float)
         t = np.asarray(t, dtype=float).ravel()
-        M = Phi.shape[1]
+        N, M = Phi.shape[0], Phi.shape[1] if Phi.ndim > 1 else 1
         self.Phi = Phi
         self.t = t
-        # S_N^-1 = alpha * I + beta * Phi^T @ Phi (式 3.54)
-        S_N_inv = self.alpha * np.eye(M) + self.beta * (Phi.T @ Phi)
+        if self.S0_inv is not None:
+            S_N_inv = self.S0_inv + self.beta * (Phi.T @ Phi)
+            prior_term = self.S0_inv @ (self.m0 if self.m0 is not None else np.zeros(M))
+        else:
+            alpha_val = self.alpha if self.alpha is not None else 1e-6
+            S_N_inv = alpha_val * np.eye(M) + self.beta * (Phi.T @ Phi)
+            prior_term = np.zeros(M)
         self.S_N = np.linalg.inv(S_N_inv)
-        # m_N = beta * S_N @ Phi^T @ t (式 3.53)
-        self.m_N = self.beta * (self.S_N @ Phi.T @ t)
+        self.m_N = self.S_N @ (prior_term + self.beta * (Phi.T @ t))
         return self
 
     def update(self, phi_n, t_n):
@@ -360,8 +366,13 @@ class BayesianLinearRegression:
         t_n = float(t_n)
         M = len(phi_n)
         if self.S_N is None:
-            self.m_N = np.zeros(M)
-            self.S_N = (1.0 / self.alpha) * np.eye(M)
+            if self.S0_inv is not None:
+                self.m_N = self.m0.copy() if self.m0 is not None else np.zeros(M)
+                self.S_N = np.linalg.inv(self.S0_inv)
+            else:
+                alpha_val = self.alpha if self.alpha is not None else 1e-6
+                self.m_N = np.zeros(M)
+                self.S_N = (1.0 / alpha_val) * np.eye(M)
 
         S_N_inv_old = np.linalg.inv(self.S_N)
         S_N_inv_new = S_N_inv_old + self.beta * np.outer(phi_n, phi_n)
@@ -425,9 +436,10 @@ class NormalGammaLinearRegression:
         self.Phi = Phi
         self.t = t
         N, M = Phi.shape
-
-        S0_inv = np.eye(M) if self.S0_inv is None else np.asarray(self.S0_inv, dtype=float)
-        m0 = np.zeros(M) if self.m0 is None else np.asarray(self.m0, dtype=float)
+        self.S0_inv = np.eye(M) if self.S0_inv is None else np.asarray(self.S0_inv, dtype=float)
+        self.m0 = np.zeros(M) if self.m0 is None else np.asarray(self.m0, dtype=float)
+        S0_inv = self.S0_inv
+        m0 = self.m0
 
         # 更新式 (PRML 式 3.116 - 3.117)
         S_N_inv = S0_inv + Phi.T @ Phi
