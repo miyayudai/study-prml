@@ -150,6 +150,46 @@ class GaussianGenerativeClassifier:
         proba = self.predict_proba(X)
         return self.classes[np.argmax(proba, axis=-1)]
 
+    @property
+    def pi(self):
+        """クラス1の事前確率 (2クラス時) または事前確率ベクトル"""
+        if self.priors is not None:
+            if len(self.priors) == 2:
+                idx = np.where(self.classes == 1)[0]
+                if len(idx) > 0:
+                    return self.priors[idx[0]]
+                return self.priors[0]
+            return self.priors
+        return None
+
+    @property
+    def mu1(self):
+        """クラス1の平均ベクトル (2クラス時)"""
+        if self.means is not None:
+            idx = np.where(self.classes == 1)[0]
+            if len(idx) > 0:
+                return self.means[idx[0]]
+            return self.means[0]
+        return None
+
+    @property
+    def mu2(self):
+        """クラス2 (ラベル0) の平均ベクトル (2クラス時)"""
+        if self.means is not None:
+            idx = np.where(self.classes == 0)[0]
+            if len(idx) > 0:
+                return self.means[idx[0]]
+            if len(self.means) > 1:
+                return self.means[1]
+        return None
+
+    @property
+    def Sigma(self):
+        """共通共分散行列 (LDA時) または第1クラスの共分散行列"""
+        if self.covs is not None and len(self.covs) > 0:
+            return self.covs[0]
+        return None
+
 
 class LogisticRegression:
     """ロジスティック回帰 (IRLS アルゴリズム, PRML 4.3.2-4.3.3節)"""

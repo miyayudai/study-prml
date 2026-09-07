@@ -40,6 +40,8 @@ from common.regression_utils import (
 )
 
 from common.classification_utils import (
+    sigmoid,
+    softmax,
     Perceptron,
     FisherLinearDiscriminant,
     MulticlassFisherLinearDiscriminant,
@@ -49,6 +51,7 @@ from common.classification_utils import (
     ProbitRegression,
     BayesianLogisticRegression,
     LaplaceApproximation,
+    plot_decision_boundary_2d,
 )
 
 __all__ = [
@@ -79,6 +82,8 @@ __all__ = [
     "equivalent_kernel_matrix",
     "bayesian_model_evidence",
     # Linear Classification Models
+    "sigmoid",
+    "softmax",
     "Perceptron",
     "FisherLinearDiscriminant",
     "MulticlassFisherLinearDiscriminant",
@@ -88,4 +93,5 @@ __all__ = [
     "ProbitRegression",
     "BayesianLogisticRegression",
     "LaplaceApproximation",
+    "plot_decision_boundary_2d",
 ]
