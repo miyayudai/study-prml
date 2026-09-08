@@ -74,8 +74,14 @@ class VariationalGaussianMixture:
         self.W_0 = np.eye(D)
         self.W_0_inv = np.linalg.inv(self.W_0)
         
-        # 初期化: 負担率をランダムに初期化 (ディリクレ分布)
-        self.responsibilities_ = np.random.dirichlet(np.ones(K), size=N)
+        # 初期化: K-means による負担率初期化
+        from common.mixture_em_utils import KMeans
+        km = KMeans(n_clusters=K, max_iter=20, random_state=self.random_state)
+        km.fit(X)
+        labels = km.predict(X)
+        self.responsibilities_ = np.zeros((N, K))
+        self.responsibilities_[np.arange(N), labels] = 1.0
+        self.responsibilities_ = (self.responsibilities_ + 0.05) / (1.0 + 0.05 * K)
         
         for iteration in range(self.max_iter):
             # Mステップ相当 (変分事後パラメータの更新, PRML 10.51 - 10.63)
@@ -132,6 +138,17 @@ class VariationalGaussianMixture:
             
         return self
 
+    @property
+    def means_(self):
+        return self.m_
+
+    @property
+    def weights_(self):
+        if self.alpha_ is None:
+            return None
+        return self.alpha_ / np.sum(self.alpha_)
+
+
 def jaakkola_jordan_lambda(xi):
     """
     Jaakkola & Jordan ロジスティック変分境界関数 (PRML 式 10.144)
@@ -146,3 +163,78 @@ def jaakkola_jordan_lambda(xi):
     nz = ~zero_mask
     result[nz] = (1.0 / (4.0 * xi[nz])) * np.tanh(xi[nz] / 2.0)
     return result
+
+
+def ep_clutter_step(m_cav, v_cav, x_n, w, a, D=1):
+    """
+    EP (Expectation Propagation) クラッター問題における単一因子のモーメント整合更新
+    PRML 10.7.1節 式 (10.214) - (10.222)
+    """
+    m_cav = np.asarray(m_cav, dtype=float)
+    x_n = np.asarray(x_n, dtype=float)
+    diff = x_n - m_cav
+    diff_sq = np.sum(diff**2)
+    
+    # 規格化定数 Z_n (式 10.216)
+    # N(x_n | m_cav, (v_cav + 1)I)
+    var_sig = v_cav + 1.0
+    gauss_sig = (2.0 * np.pi * var_sig)**(-D / 2.0) * np.exp(-0.5 * diff_sq / var_sig)
+    # N(x_n | 0, a I)
+    gauss_clutter = (2.0 * np.pi * a)**(-D / 2.0) * np.exp(-0.5 * np.sum(x_n**2) / a)
+    Z_n = (1.0 - w) * gauss_sig + w * gauss_clutter
+    
+    rho_n = (1.0 - w) * gauss_sig / (Z_n + 1e-12)
+    
+    # q^new(theta) の平均と分散 (式 10.217, 10.218)
+    m_new = m_cav + rho_n * (v_cav / var_sig) * diff
+    v_new = v_cav - rho_n * (v_cav**2 / var_sig) + rho_n * (1.0 - rho_n) * (v_cav**2 / (D * var_sig**2)) * diff_sq
+    
+    # 新しい因子パラメータ (m_n, v_n) (式 10.220, 10.221)
+    inv_v_new = 1.0 / v_new
+    inv_v_cav = 1.0 / v_cav
+    inv_v_n = inv_v_new - inv_v_cav
+    v_n = 1.0 / (inv_v_n + 1e-12)
+    m_n = v_n * (inv_v_new * m_new - inv_v_cav * m_cav)
+    
+    return Z_n, m_new, v_new, m_n, v_n
+
+
+def variational_linear_regression(Phi, t, a_0=1e-3, b_0=1e-3, c_0=1e-3, d_0=1e-3, max_iter=50, tol=1e-6):
+    """
+    精度ハイパーパラメータ alpha, beta に対する完全変分ベイズ線形回帰 (PRML 演習 10.26)
+    q(w) = N(w | m_N, S_N)
+    q(alpha) = Gam(alpha | a_N, b_N)
+    q(beta) = Gam(beta | c_N, d_N)
+    """
+    N, M = Phi.shape
+    PhiT_Phi = Phi.T @ Phi
+    PhiT_t = Phi.T @ t
+    
+    E_alpha = a_0 / b_0
+    E_beta = c_0 / d_0
+    
+    a_N = a_0 + 0.5 * M
+    c_N = c_0 + 0.5 * N
+    
+    m_N = np.zeros(M)
+    S_N = np.eye(M)
+    
+    for iteration in range(max_iter):
+        # 1. q(w) の更新
+        S_N_inv = E_alpha * np.eye(M) + E_beta * PhiT_Phi
+        S_N = np.linalg.inv(S_N_inv)
+        m_N = E_beta * (S_N @ PhiT_t)
+        
+        # 2. q(alpha) の更新
+        E_w_sq = m_N @ m_N + np.trace(S_N)
+        b_N = b_0 + 0.5 * E_w_sq
+        E_alpha = a_N / b_N
+        
+        # 3. q(beta) の更新
+        diff = t - Phi @ m_N
+        E_resid = diff @ diff + np.trace(PhiT_Phi @ S_N)
+        d_N = d_0 + 0.5 * E_resid
+        E_beta = c_N / d_N
+        
+    return m_N, S_N, a_N, b_N, c_N, d_N, E_alpha, E_beta
+

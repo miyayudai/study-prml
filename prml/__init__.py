@@ -110,6 +110,8 @@ from .clustering import (
 from .variational import (
     VariationalGaussian1D,
     jaakkola_jordan_lambda,
+    ep_clutter_step,
+    variational_linear_regression,
 )
 
 from .sampling import (
@@ -239,6 +241,8 @@ __all__ = [
     "incremental_em_update",
     "VariationalGaussian1D",
     "jaakkola_jordan_lambda",
+    "ep_clutter_step",
+    "variational_linear_regression",
     "rejection_sample",
     "metropolis_hastings",
     "gibbs_sampler_2d",

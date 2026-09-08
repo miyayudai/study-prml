@@ -17,6 +17,7 @@ import prml.sequential as sequential
 import prml.ensemble as ensemble
 import prml.graphical as graphical
 import prml.distributions as distributions
+import prml.variational as variational
 
 class TestPRMLPackageAPI(unittest.TestCase):
 
@@ -104,6 +105,16 @@ class TestPRMLPackageAPI(unittest.TestCase):
         for name in expected:
             self.assertTrue(hasattr(clustering, name), f"Missing {name} in prml.clustering")
             self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
+
+    def test_variational_exports(self):
+        expected = [
+            "VariationalGaussian1D", "VariationalGaussianMixture",
+            "jaakkola_jordan_lambda", "ep_clutter_step", "variational_linear_regression"
+        ]
+        for name in expected:
+            self.assertTrue(hasattr(variational, name), f"Missing {name} in prml.variational")
+            self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
+
 
 
     def test_fit_predict_interface_consistency(self):

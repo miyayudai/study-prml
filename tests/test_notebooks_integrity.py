@@ -77,6 +77,34 @@ class TestNotebooksIntegrity(unittest.TestCase):
             images = glob.glob(os.path.join(res_dir, "*.png")) + glob.glob(os.path.join(res_dir, "*.jpg"))
             self.assertGreater(len(images), 0, f"No generated figures in Chapter {chapter}/result")
 
+    def test_notebooks_all_cells_executed_without_errors(self):
+        """全64冊のノートブックの全コードセルが実行済みであり、エラー出力がないことを検証"""
+        for path in self.notebook_paths:
+            rel_path = os.path.relpath(path, self.repo_root)
+            with self.subTest(notebook=rel_path):
+                with open(path, "r", encoding="utf-8") as f:
+                    nb = nbformat.read(f, as_version=4)
+
+                code_cells = [c for c in nb.cells if c.cell_type == "code"]
+                for idx, cell in enumerate(code_cells):
+                    source = cell.source.strip()
+                    if not source:
+                        continue
+                    # 1. 実行出力が存在すること
+                    self.assertGreater(
+                        len(cell.outputs), 0,
+                        f"Unexecuted code cell found in {rel_path} (code cell index {idx})"
+                    )
+                    # 2. エラー出力がないこと
+                    for out in cell.outputs:
+                        if out.get("output_type") == "error":
+                            ename = out.get("ename", "UnknownError")
+                            evalue = out.get("evalue", "")
+                            self.fail(
+                                f"Execution error in {rel_path} (cell {idx}): {ename}: {evalue}"
+                            )
+
 
 if __name__ == "__main__":
     unittest.main()
+

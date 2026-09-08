@@ -68,6 +68,34 @@ class TestVariationalInference(unittest.TestCase):
         self.assertAlmostEqual(e_tau, 4.0, delta=0.6)
 
 
+    def test_ep_clutter_step(self):
+        # PRML 10.7.1 式 (10.214) - (10.222)
+        m_cav = 0.0
+        v_cav = 10.0
+        x_n = 2.0
+        w = 0.5
+        a = 100.0
+        Z_n, m_new, v_new, m_n, v_n = prml.ep_clutter_step(m_cav, v_cav, x_n, w, a, D=1)
+        self.assertGreater(Z_n, 0.0)
+        # 平均はデータ点 x_n に向かって正の方向にシフト
+        self.assertGreater(m_new, m_cav)
+        # 観測による不確実性減少: v_new < v_cav
+        self.assertLess(v_new, v_cav)
+        self.assertGreater(v_new, 0.0)
+
+    def test_variational_linear_regression(self):
+        # PRML 演習 10.26
+        np.random.seed(42)
+        N, M = 60, 3
+        Phi = np.random.randn(N, M)
+        w_true = np.array([1.5, -2.0, 0.5])
+        noise_std = 0.2
+        t = Phi @ w_true + np.random.randn(N) * noise_std
+        m_N, S_N, a_N, b_N, c_N, d_N, E_alpha, E_beta = prml.variational_linear_regression(Phi, t, max_iter=30)
+        np.testing.assert_allclose(m_N, w_true, atol=0.1)
+        self.assertAlmostEqual(E_beta, 1.0 / (noise_std**2), delta=10.0)
+
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -11,6 +11,8 @@ from common.variational_utils import (
     variational_gaussian_1d,
     VariationalGaussianMixture,
     jaakkola_jordan_lambda,
+    ep_clutter_step,
+    variational_linear_regression,
 )
 
 
@@ -70,4 +72,6 @@ __all__ = [
     "VariationalGaussian1D",
     "VariationalGaussianMixture",
     "jaakkola_jordan_lambda",
+    "ep_clutter_step",
+    "variational_linear_regression",
 ]

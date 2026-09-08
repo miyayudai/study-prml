@@ -33,7 +33,11 @@ from .mixture_em_utils import (
     KMeans, GaussianMixtureModel, BernoulliMixtureModel,
     mixture_moments, incremental_em_update
 )
-from .variational_utils import VariationalGaussianMixture
+from .variational_utils import (
+    VariationalGaussianMixture,
+    ep_clutter_step,
+    variational_linear_regression,
+)
 from .sampling_utils import rejection_sample, metropolis_hastings, gibbs_sampler_2d, hamiltonian_monte_carlo
 from .pca_ppca_utils import PCA, ProbabilisticPCA, KernelPCA
 from .sequential_utils import GaussianHMM, KalmanFilter
@@ -70,7 +74,7 @@ __all__ = [
     'KMeans', 'GaussianMixtureModel', 'BernoulliMixtureModel',
     'mixture_moments', 'incremental_em_update',
     # Ch 10: Approximate Inference
-    'VariationalGaussianMixture',
+    'VariationalGaussianMixture', 'ep_clutter_step', 'variational_linear_regression',
     # Ch 11: Sampling Methods
     'rejection_sample', 'metropolis_hastings', 'gibbs_sampler_2d', 'hamiltonian_monte_carlo',
     # Ch 12: Continuous Latent Variables
