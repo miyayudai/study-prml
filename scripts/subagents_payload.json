@@ -1,0 +1,92 @@
+[
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 1",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.1: (多項式曲線の二乗和誤差の偏微分と正規方程式)\n- Exercise 1.2: (任意の基底関数モデルへの一般化)\n- Exercise 1.3: (りんごとオレンジの箱問題（ベイズ逆確率）)\n- Exercise 1.4: (変数変換による確率密度のヤコビアン公式)\n- Exercise 1.5: \n- Exercise 1.6: \n- Exercise 1.7: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 2",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.8: \n- Exercise 1.9: \n- Exercise 1.10: \n- Exercise 1.11: \n- Exercise 1.12: \n- Exercise 1.13: \n- Exercise 1.14: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 3",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.15: \n- Exercise 1.16: \n- Exercise 1.17: \n- Exercise 1.18: \n- Exercise 1.19: \n- Exercise 1.20: \n- Exercise 1.21: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 4",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.22: \n- Exercise 1.23: \n- Exercise 1.24: \n- Exercise 1.25: \n- Exercise 1.26: \n- Exercise 1.27: \n- Exercise 1.28: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 5",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.29: \n- Exercise 1.30: \n- Exercise 1.31: \n- Exercise 1.32: \n- Exercise 1.33: \n- Exercise 1.34: \n- Exercise 1.35: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch1 Solver 6",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 1 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch1_ex{num}.md' (e.g., 'ch1_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 1.36: \n- Exercise 1.37: \n- Exercise 1.38: \n- Exercise 1.39: \n- Exercise 1.40: \n- Exercise 1.41: ",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 1",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.1: (ベルヌーイ分布の規格化、モーメント、エントロピー)\n- Exercise 2.2: (対称な二値変数表現 $x \\in \\{-1, +1\\}$)\n- Exercise 2.3: (二項分布の規格化と組み合わせ漸化式)\n- Exercise 2.4: (微分の技法による二項分布のモーメント導出)\n- Exercise 2.5: (ベータ関数の積分表現と規格化)\n- Exercise 2.6: (ベータ分布の平均、分散、最頻値)\n- Exercise 2.7: (ベータ事前分布と二項尤度の共役性)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 2",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.8: (ベイズ推論における事後予測分布)\n- Exercise 2.9: (多項分布の規格化)\n- Exercise 2.10: (多項分布のモーメント)\n- Exercise 2.11: (ディリクレ分布のモーメント)\n- Exercise 2.12: (ディリクレ分布の最頻値)\n- Exercise 2.13: (多項尤度とディリクレ事前分布の共役性)\n- Exercise 2.14: (ディリクレ分布の事後予測分布)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 3",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.15: (共分散行列の二次形式と固有値分解)\n- Exercise 2.16: (共分散行列の正定値性)\n- Exercise 2.17: (精度行列の固有値と固有ベクトル)\n- Exercise 2.18: (多変量ガウス分布の規格化の直接証明)\n- Exercise 2.19: (多変量ガウス分布の平均値)\n- Exercise 2.20: (多変量ガウス分布の二次モーメント)\n- Exercise 2.21: (ガウス分布の4次モーメントとIsserlisの定理)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 4",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.22: (条件付きガウス分布の導出)\n- Exercise 2.23: (周辺ガウス分布の導出)\n- Exercise 2.24: (線形ガウスモデルの周辺分布)\n- Exercise 2.25: (線形ガウスモデルの事後分布)\n- Exercise 2.26: (ガウス分布の最尤推定)\n- Exercise 2.27: (標本共分散のバイアス)\n- Exercise 2.28: (Robbins-Monro アルゴリズムの条件)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 5",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.29: (逐次分散推定式の導出)\n- Exercise 2.30: (平均のベイズ推論における事後分散の単調減少)\n- Exercise 2.31: (事前分散の有効観測数解釈)\n- Exercise 2.32: (ガンマ事前分布による精度の事後分布)\n- Exercise 2.33: (ガンマ分布のモーメントと最頻値)\n- Exercise 2.34: (ウィシャート分布の定義と性質)\n- Exercise 2.35: (ガウス-ガンマ分布の事後分布更新)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 6",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.36: (ガウス-ウィシャート分布の事後分布更新)\n- Exercise 2.37: (ガンマ分布の周辺化によるStudent's t分布の導出)\n- Exercise 2.38: (Student's t分布の平均と分散)\n- Exercise 2.39: (Student's t分布のガウス分布への収束)\n- Exercise 2.40: (多変量 Student's t分布)\n- Exercise 2.41: (Student's t分布のEMアルゴリズム)\n- Exercise 2.42: (周期変数と平均方向)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 7",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.43: (フォン・ミーゼス分布の規格化)\n- Exercise 2.44: (フォン・ミーゼス分布の最尤推定)\n- Exercise 2.45: (集中度大でのフォン・ミーゼス分布のガウス近似)\n- Exercise 2.46: (混合ガウス分布の規格化)\n- Exercise 2.47: (混合ガウス分布のモーメント)\n- Exercise 2.48: (ポアソン分布の指数型表現)\n- Exercise 2.49: (対数分配関数の2階微分と共分散)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 8",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.50: (共役事前分布の事後更新の一般証明)\n- Exercise 2.51: (平行移動不変性と一様事前分布)\n- Exercise 2.52: (拡大縮小不変性と尺度母数事前分布)\n- Exercise 2.53: (フィッシャー情報量の正定値性)\n- Exercise 2.54: (Jeffreys 事前分布の変数変換不変性)\n- Exercise 2.55: (ガウス平均に対する Jeffreys 事前分布)\n- Exercise 2.56: (ガウス分散に対する Jeffreys 事前分布)",
+    "Model": "pro"
+  },
+  {
+    "TypeName": "notebook-enricher",
+    "Role": "Ch2 Solver 9",
+    "Prompt": "You are an expert in PRML (Pattern Recognition and Machine Learning).\nYour task is to write complete, rigorous mathematical proofs and explanations for the following Chapter 2 PRML exercises.\nWrite your output in Japanese, using GitHub-flavored Markdown and LaTeX for math.\nCreate a separate markdown file for EACH exercise in the directory '/home/student/Documents/GitHub/my_PRML/solutions/'.\nName the files as 'ch2_ex{num}.md' (e.g., 'ch2_ex5.md').\nEnsure every step of the derivation is clearly explained as if for a textbook solution manual.\n\nExercises to solve:\n- Exercise 2.57: (Parzen 窓密度推定の規格化)\n- Exercise 2.58: (カーネル密度推定の平均とバイアス)\n- Exercise 2.59: (KNN 密度推定の積分発散)\n- Exercise 2.60: (Cover-Hart の定理: 1-NN の漸近誤り率)\n- Exercise 2.61: (マハラノビス距離を用いた適応型KNN)",
+    "Model": "pro"
+  }
+]
