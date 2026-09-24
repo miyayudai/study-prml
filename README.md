@@ -142,6 +142,106 @@ pytest tests -v
 
 ---
 
+
+## 🔗 ノートブック一覧 (Colabで1クリック起動)
+
+以下のバッジをクリックすると、各ノートブックをGoogle Colab上で直接開いて実行できます。先頭のセットアップセルを実行するだけで即座に学習を開始できます。
+
+### 第0章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/0/0_Exercises.ipynb) `0_Exercises.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/0/0_Foundations_of_Probability.ipynb) `0_Foundations_of_Probability.ipynb`
+
+### 第1章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1.1_Polynomial_Curve_Fitting.ipynb) `1.1_Polynomial_Curve_Fitting.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1.2_Probability_Theory.ipynb) `1.2_Probability_Theory.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1.3-1.4_Model_Selection_and_Curse_of_Dimensionality.ipynb) `1.3-1.4_Model_Selection_and_Curse_of_Dimensionality.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1.5_Decision_Theory.ipynb) `1.5_Decision_Theory.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1.6_Information_Theory.ipynb) `1.6_Information_Theory.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/1/1_Exercises.ipynb) `1_Exercises.ipynb`
+
+### 第2章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2.1_Binary_Variables.ipynb) `2.1_Binary_Variables.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2.2_Multinomial_Variables.ipynb) `2.2_Multinomial_Variables.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2.3_The_Gaussian_Distribution.ipynb) `2.3_The_Gaussian_Distribution.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2.4_The_Exponential_Family.ipynb) `2.4_The_Exponential_Family.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2.5_Nonparametric_Methods.ipynb) `2.5_Nonparametric_Methods.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/2/2_Exercises.ipynb) `2_Exercises.ipynb`
+
+### 第3章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3.1_Linear_Basis_Function_Models.ipynb) `3.1_Linear_Basis_Function_Models.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3.2_The_Bias_Variance_Decomposition.ipynb) `3.2_The_Bias_Variance_Decomposition.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3.3_Bayesian_Linear_Regression.ipynb) `3.3_Bayesian_Linear_Regression.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3.4_Bayesian_Model_Comparison.ipynb) `3.4_Bayesian_Model_Comparison.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3.5-3.6_The_Evidence_Approximation_and_Limitations.ipynb) `3.5-3.6_The_Evidence_Approximation_and_Limitations.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/3/3_Exercises.ipynb) `3_Exercises.ipynb`
+
+### 第4章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/4/4.1_Discriminant_Functions.ipynb) `4.1_Discriminant_Functions.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/4/4.2_Probabilistic_Generative_Models.ipynb) `4.2_Probabilistic_Generative_Models.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/4/4.3_Probabilistic_Discriminative_Models.ipynb) `4.3_Probabilistic_Discriminative_Models.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/4/4.4-4.5_Laplace_Approximation_and_Bayesian_Logistic_Regression.ipynb) `4.4-4.5_Laplace_Approximation_and_Bayesian_Logistic_Regression.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/4/4_Exercises.ipynb) `4_Exercises.ipynb`
+
+### 第5章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/5/5.1-5.3_Feedforward_Networks_and_Backpropagation.ipynb) `5.1-5.3_Feedforward_Networks_and_Backpropagation.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/5/5.4-5.5_The_Hessian_and_Regularization.ipynb) `5.4-5.5_The_Hessian_and_Regularization.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/5/5.6_Mixture_Density_Networks.ipynb) `5.6_Mixture_Density_Networks.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/5/5.7_Bayesian_Neural_Networks.ipynb) `5.7_Bayesian_Neural_Networks.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/5/5_Exercises.ipynb) `5_Exercises.ipynb`
+
+### 第6章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/6/6.1-6.2_Dual_Representations_and_Kernel_Construction.ipynb) `6.1-6.2_Dual_Representations_and_Kernel_Construction.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/6/6.3_Radial_Basis_Function_Networks_and_Nadaraya_Watson.ipynb) `6.3_Radial_Basis_Function_Networks_and_Nadaraya_Watson.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/6/6.4_Gaussian_Processes_for_Regression_and_ARD.ipynb) `6.4_Gaussian_Processes_for_Regression_and_ARD.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/6/6.5_Gaussian_Processes_for_Classification.ipynb) `6.5_Gaussian_Processes_for_Classification.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/6/6_Exercises.ipynb) `6_Exercises.ipynb`
+
+### 第7章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/7/7.1_Support_Vector_Machines.ipynb) `7.1_Support_Vector_Machines.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/7/7.2_Relevance_Vector_Machines.ipynb) `7.2_Relevance_Vector_Machines.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/7/7_Exercises.ipynb) `7_Exercises.ipynb`
+
+### 第8章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/8/8.1-8.2_Bayesian_Networks_and_Conditional_Independence.ipynb) `8.1-8.2_Bayesian_Networks_and_Conditional_Independence.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/8/8.3_Markov_Random_Fields_and_Image_Denoising.ipynb) `8.3_Markov_Random_Fields_and_Image_Denoising.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/8/8.4_Exact_Inference_and_Factor_Graphs.ipynb) `8.4_Exact_Inference_and_Factor_Graphs.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/8/8_Exercises.ipynb) `8_Exercises.ipynb`
+
+### 第9章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/9/9.1_K_means_Clustering.ipynb) `9.1_K_means_Clustering.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/9/9.2-9.3_Gaussian_and_Bernoulli_Mixture_Models.ipynb) `9.2-9.3_Gaussian_and_Bernoulli_Mixture_Models.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/9/9.4_The_General_EM_Algorithm.ipynb) `9.4_The_General_EM_Algorithm.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/9/9_Exercises.ipynb) `9_Exercises.ipynb`
+
+### 第10章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/10/10.1_Variational_Inference_Foundations.ipynb) `10.1_Variational_Inference_Foundations.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/10/10.2_Variational_Gaussian_Mixtures.ipynb) `10.2_Variational_Gaussian_Mixtures.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/10/10.5-10.7_Local_Variational_and_Expectation_Propagation.ipynb) `10.5-10.7_Local_Variational_and_Expectation_Propagation.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/10/10_Exercises.ipynb) `10_Exercises.ipynb`
+
+### 第11章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/11/11.1_Basic_Sampling_Algorithms.ipynb) `11.1_Basic_Sampling_Algorithms.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/11/11.2-11.3_MCMC_and_Gibbs_Sampling.ipynb) `11.2-11.3_MCMC_and_Gibbs_Sampling.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/11/11.5_Hybrid_Monte_Carlo.ipynb) `11.5_Hybrid_Monte_Carlo.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/11/11_Exercises.ipynb) `11_Exercises.ipynb`
+
+### 第12章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/12/12.1_Principal_Component_Analysis.ipynb) `12.1_Principal_Component_Analysis.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/12/12.2_Probabilistic_PCA_and_Factor_Analysis.ipynb) `12.2_Probabilistic_PCA_and_Factor_Analysis.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/12/12.3_Kernel_PCA.ipynb) `12.3_Kernel_PCA.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/12/12_Exercises.ipynb) `12_Exercises.ipynb`
+
+### 第13章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/13/13.1-13.2_Hidden_Markov_Models.ipynb) `13.1-13.2_Hidden_Markov_Models.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/13/13.3_Linear_Dynamical_Systems_Kalman_Filter.ipynb) `13.3_Linear_Dynamical_Systems_Kalman_Filter.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/13/13_Exercises.ipynb) `13_Exercises.ipynb`
+
+### 第14章
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/14/14.1-14.3_Bagging_and_AdaBoost.ipynb) `14.1-14.3_Bagging_and_AdaBoost.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/14/14.4-14.5_Decision_Trees_and_Mixture_of_Experts.ipynb) `14.4-14.5_Decision_Trees_and_Mixture_of_Experts.ipynb`
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/miyayudai/my_PRML/blob/main/14/14_Exercises.ipynb) `14_Exercises.ipynb`
+
+
 ## 🛠️ 開発者・メンテナー向け情報
 
 - **ノートブックの一括再生成**:
