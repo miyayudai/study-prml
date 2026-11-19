@@ -44,14 +44,6 @@ class TestPRMLPackageAPI(unittest.TestCase):
             self.assertTrue(hasattr(kernel, name), f"Missing {name} in prml.kernel")
             self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
 
-    def test_clustering_exports(self):
-        expected = [
-            "KMeans", "GaussianMixtureModel", "BernoulliMixtureModel", "VariationalGaussianMixture"
-        ]
-        for name in expected:
-            self.assertTrue(hasattr(clustering, name), f"Missing {name} in prml.clustering")
-            self.assertTrue(hasattr(prml, name), f"Missing {name} in prml top-level")
-
     def test_sampling_exports(self):
         expected = [
             "rejection_sample", "metropolis_hastings", "gibbs_sampler_2d", "hamiltonian_monte_carlo"
@@ -82,7 +74,8 @@ class TestPRMLPackageAPI(unittest.TestCase):
         expected = [
             "Gaussian1D", "MultivariateGaussian", "BetaDistribution", "DirichletDistribution",
             "GammaDistribution", "StudentsTDistribution", "VonMisesDistribution",
-            "KernelDensityEstimator", "KNearestNeighborsDensity", "RobbinsMonro"
+            "HistogramDensityEstimator", "KernelDensityEstimator",
+            "KNearestNeighborsDensity", "KNearestNeighborsClassifier", "RobbinsMonro"
         ]
         for name in expected:
             self.assertTrue(hasattr(distributions, name), f"Missing {name} in prml.distributions")

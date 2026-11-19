@@ -14,8 +14,10 @@ from prml.distributions import (
     GammaDistribution,
     StudentsTDistribution,
     VonMisesDistribution,
+    HistogramDensityEstimator,
     KernelDensityEstimator,
     KNearestNeighborsDensity,
+    KNearestNeighborsClassifier,
     RobbinsMonro,
     simplex_to_xy,
     student_t_pdf,
@@ -174,23 +176,53 @@ class TestDistributions(unittest.TestCase):
 
     def test_kde_and_knn(self):
         X = np.random.normal(loc=0.0, scale=1.0, size=200)
-        # KDE with Gaussian and Epanechnikov
-        kde_gauss = KernelDensityEstimator(bandwidth=0.5, kernel='gaussian').fit(X)
-        kde_epan = KernelDensityEstimator(bandwidth=0.5, kernel='epanechnikov').fit(X)
 
-        # Center density should be significantly higher than tail density
-        self.assertGreater(kde_gauss.score_samples([0.0]), kde_gauss.score_samples([3.5]))
-        self.assertGreater(kde_epan.score_samples([0.0]), kde_epan.score_samples([3.5]))
+        # 1. Histogram Density Estimator: exact integral == 1.0 & LOOCV
+        hist = HistogramDensityEstimator(bin_width=0.5).fit(X)
+        self.assertAlmostEqual(float(np.sum(hist.probs) * hist.bin_width), 1.0, places=5)
+        self.assertGreater(hist.score_samples(np.array([0.0]))[0], hist.score_samples(np.array([3.5]))[0])
+        self.assertIsInstance(hist.loocv_log_likelihood(eps=1e-6), float)
+
+        # 2. KDE across Gaussian, Epanechnikov, Box kernels: integral == 1.0 & LOOCV selection
+        x_grid = np.linspace(-8.0, 8.0, 4000)
+        for kern in ('gaussian', 'epanechnikov', 'box'):
+            kde = KernelDensityEstimator(bandwidth=0.6, kernel=kern).fit(X)
+            self.assertGreater(kde.score_samples([0.0]), kde.score_samples([3.5]))
+            integ = float(np.trapezoid(kde.score_samples(x_grid), x_grid))
+            self.assertAlmostEqual(integ, 1.0, delta=1e-2)
+
+        best_h, loocv_scores = KernelDensityEstimator.select_bandwidth_loocv(X, [0.1, 0.4, 0.8, 1.5])
+        self.assertIn(best_h, [0.1, 0.4, 0.8, 1.5])
+        self.assertEqual(len(loocv_scores), 4)
 
         # Silverman's bandwidth rule
         h_silver = KernelDensityEstimator.silverman_bandwidth(X)
         self.assertGreater(h_silver, 0.0)
 
-        # KNN Density
+        # 3. KNN Density & improper tail integral divergence (Ex 2.59)
         knn = KNearestNeighborsDensity(k=10).fit(X)
         p_center = knn.score_samples([0.0])
         p_tail = knn.score_samples([3.0])
         self.assertGreater(p_center, p_tail)
+
+        wide_grid = np.linspace(-50.0, 50.0, 10000)
+        wider_grid = np.linspace(-500.0, 500.0, 20000)
+        knn_integ_50 = float(np.trapezoid(knn.score_samples(wide_grid), wide_grid))
+        knn_integ_500 = float(np.trapezoid(knn.score_samples(wider_grid), wider_grid))
+        self.assertGreater(knn_integ_50, 1.2)
+        self.assertGreater(knn_integ_500, knn_integ_50 + 0.10)
+
+        # 4. KNN Classifier: posterior sum == 1.0 & separable accuracy
+        X_cls = np.vstack([
+            np.random.normal(loc=[-2.0, -2.0], scale=0.6, size=(60, 2)),
+            np.random.normal(loc=[2.0, 2.0], scale=0.6, size=(60, 2)),
+        ])
+        y_cls = np.array([0] * 60 + [1] * 60)
+        clf = KNearestNeighborsClassifier(k=5).fit(X_cls, y_cls)
+        proba = clf.predict_proba(np.array([[-2.0, -2.0], [0.0, 0.0], [2.0, 2.0]]))
+        np.testing.assert_allclose(np.sum(proba, axis=1), np.ones(3))
+        preds = clf.predict(X_cls)
+        self.assertGreater(float(np.mean(preds == y_cls)), 0.95)
 
     def test_robbins_monro(self):
         mu_true = 5.0

@@ -550,6 +550,73 @@ class VonMisesDistribution:
         return self
 
 
+class HistogramDensityEstimator:
+    """
+    ヒストグラム密度推定量 (Histogram Density Estimator) - PRML Section 2.5 (Eq. 2.241-2.242)
+
+    1次元データを幅 delta のビンに分割し、各ビンに落ちる観測点比率から一定密度
+    p_i = n_i / (N * delta) を推定する。
+    """
+    def __init__(self, bin_width: float = 0.5, origin: float | None = None):
+        if bin_width <= 0:
+            raise ValueError("bin_width must be positive.")
+        self.bin_width = float(bin_width)
+        self.origin = origin
+        self.edges = None
+        self.counts = None
+        self.probs = None
+        self.N = None
+
+    def fit(self, X):
+        X = np.asarray(X, dtype=float).ravel()
+        if X.size == 0:
+            raise ValueError("X must not be empty.")
+        self.N = int(X.size)
+        x_min = float(np.min(X))
+        x_max = float(np.max(X))
+        start = float(self.origin) if self.origin is not None else (np.floor(x_min / self.bin_width) * self.bin_width)
+        while start > x_min:
+            start -= self.bin_width
+        n_bins = int(np.floor((x_max - start) / self.bin_width)) + 1
+        self.edges = start + np.arange(n_bins + 1, dtype=float) * self.bin_width
+        counts, _ = np.histogram(X, bins=self.edges)
+        self.counts = counts
+        self.probs = counts / (self.N * self.bin_width)
+        return self
+
+    def score_samples(self, X_eval):
+        """評価点でのヒストグラム確率密度 p(x) を算出"""
+        X_eval = np.asarray(X_eval, dtype=float)
+        orig_shape = X_eval.shape
+        x_flat = X_eval.ravel()
+        idx = np.searchsorted(self.edges, x_flat, side='right') - 1
+        valid = (idx >= 0) & (idx < len(self.probs))
+        densities = np.zeros_like(x_flat, dtype=float)
+        densities[valid] = self.probs[idx[valid]]
+        if X_eval.ndim == 0:
+            return float(densities[0])
+        return densities.reshape(orig_shape)
+
+    def loocv_log_likelihood(self, eps: float = 0.0) -> float:
+        """
+        Leave-One-Out Cross-Validation (LOOCV) 対数尤度を算出。
+        各ビン内のサンプル n_i について、自身を除いた密度は (n_i - 1) / ((N - 1) * delta)。
+        """
+        if self.N is None or self.N <= 1:
+            raise RuntimeError("Model must be fitted with N >= 2 samples.")
+        total_ll = 0.0
+        for c in self.counts:
+            if c == 0:
+                continue
+            loo_density = (c - 1) / ((self.N - 1) * self.bin_width)
+            if loo_density <= 0.0:
+                if eps <= 0.0:
+                    return -np.inf
+                loo_density = eps
+            total_ll += float(c) * np.log(loo_density)
+        return float(total_ll)
+
+
 class KernelDensityEstimator:
     """
     カーネル密度推定量 (Kernel Density Estimator / Parzen Window) - PRML Section 2.5.1
@@ -558,6 +625,8 @@ class KernelDensityEstimator:
     サポートカーネル: 'gaussian', 'box' (tophat), 'epanechnikov'
     """
     def __init__(self, bandwidth=1.0, kernel='gaussian'):
+        if bandwidth <= 0:
+            raise ValueError("bandwidth must be positive.")
         self.bandwidth = float(bandwidth)
         self.kernel = kernel.lower()
         self.X_train = None
@@ -606,13 +675,40 @@ class KernelDensityEstimator:
         densities = np.mean(k_vals, axis=1) / (self.bandwidth ** self.D)
         return densities[0] if single else densities
 
+    def loocv_log_likelihood(self, eps: float = 1e-12) -> float:
+        """
+        Leave-One-Out Cross-Validation (LOOCV) 対数尤度を算出。
+        バンド幅 h の過学習・過平滑化をデータ駆動で定量評価する。
+        """
+        if self.X_train is None or self.N <= 1:
+            raise RuntimeError("Model must be fitted with N >= 2 samples.")
+        diff = (self.X_train[:, np.newaxis, :] - self.X_train[np.newaxis, :, :]) / self.bandwidth
+        u_sq = np.sum(diff**2, axis=-1)
+        k_vals = self._kernel_val(u_sq)
+        np.fill_diagonal(k_vals, 0.0)
+        loo_densities = np.sum(k_vals, axis=1) / ((self.N - 1) * (self.bandwidth ** self.D))
+        return float(np.sum(np.log(np.maximum(loo_densities, eps))))
+
+    @staticmethod
+    def select_bandwidth_loocv(X, bandwidths, kernel: str = 'gaussian'):
+        """LOOCV 対数尤度を最大化する最適バンド幅 h を選択"""
+        bandwidths = np.asarray(bandwidths, dtype=float)
+        scores = np.array([
+            KernelDensityEstimator(bandwidth=float(h), kernel=kernel).fit(X).loocv_log_likelihood()
+            for h in bandwidths
+        ])
+        best_idx = int(np.argmax(scores))
+        return float(bandwidths[best_idx]), scores
+
     @staticmethod
     def silverman_bandwidth(X):
         """シルバマンの経験則 (Silverman's rule of thumb for 1D Gaussian KDE)"""
         X = np.asarray(X, dtype=float).ravel()
         std = np.std(X, ddof=1)
+        iqr = np.subtract(*np.percentile(X, [75, 25]))
+        sigma_hat = min(std, iqr / 1.34) if iqr > 0 else std
         N = len(X)
-        return 1.06 * std * (N ** (-1.0 / 5.0))
+        return 0.9 * sigma_hat * (N ** (-1.0 / 5.0))
 
 
 class KNearestNeighborsDensity:
@@ -661,6 +757,65 @@ class KNearestNeighborsDensity:
 
         densities = self.k / (self.N * v_k)
         return densities[0] if single else densities
+
+
+class KNearestNeighborsClassifier:
+    """
+    K近傍分類器 (K-Nearest-Neighbours Classifier) - PRML Section 2.5.2 (Eq. 2.255-2.258)
+
+    ベイズの定理に基づき、K近傍球内のクラス別サンプル数 K_k を用いて事後確率
+    p(C_k | x) = K_k / K を推定して決定を行うノンパラメトリック分類器。
+    """
+    def __init__(self, k: int = 5):
+        if k <= 0:
+            raise ValueError("k must be positive.")
+        self.k = int(k)
+        self.X_train = None
+        self.y_train = None
+        self.classes_ = None
+        self.N = None
+        self.D = None
+
+    def fit(self, X, y):
+        X = np.asarray(X, dtype=float)
+        y = np.asarray(y)
+        if X.ndim == 1:
+            X = X[:, np.newaxis]
+        if X.shape[0] != y.shape[0]:
+            raise ValueError("X and y must have the same number of samples.")
+        self.X_train = X
+        self.y_train = y
+        self.N, self.D = X.shape
+        if self.k > self.N:
+            raise ValueError(f"k ({self.k}) cannot be larger than sample size N ({self.N})")
+        self.classes_ = np.unique(y)
+        return self
+
+    def predict_proba(self, X_eval):
+        """クラス事後確率 p(C_k | x) = K_k / K の推定"""
+        X_eval = np.asarray(X_eval, dtype=float)
+        single = (X_eval.ndim == 1 and self.D > 1)
+        if X_eval.ndim == 1:
+            if self.D == 1:
+                X_eval = X_eval[:, np.newaxis]
+            else:
+                X_eval = X_eval[np.newaxis, :]
+
+        dists = np.linalg.norm(X_eval[:, np.newaxis, :] - self.X_train[np.newaxis, :, :], axis=-1)
+        knn_indices = np.argsort(dists, axis=1)[:, :self.k]
+        knn_labels = self.y_train[knn_indices]
+
+        proba = np.zeros((X_eval.shape[0], len(self.classes_)), dtype=float)
+        for c_idx, cls in enumerate(self.classes_):
+            proba[:, c_idx] = np.mean(knn_labels == cls, axis=1)
+        return proba[0] if single else proba
+
+    def predict(self, X_eval):
+        """最大事後確率ルールに基づくクラス予測"""
+        proba = self.predict_proba(X_eval)
+        if proba.ndim == 1:
+            return self.classes_[int(np.argmax(proba))]
+        return self.classes_[np.argmax(proba, axis=1)]
 
 
 class RobbinsMonro:
